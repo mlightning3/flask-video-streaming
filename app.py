@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 
 # emulated camera
-from camera import Camera
+from camera_usb import Camera
 
 # Raspberry Pi camera module (requires picamera package)
 # from camera_pi import Camera
@@ -24,11 +24,18 @@ def gen(camera):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
+cam = Camera()
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(Camera()),
+    return Response(gen(cam),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/snapshot', methods=['GET'])
+def take_snapshot():
+    filename = request.args.items()[0][1][:-1]
+    return str(cam.take_snapshot(filename))
 
 
 if __name__ == '__main__':
