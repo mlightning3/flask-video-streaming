@@ -10,6 +10,8 @@ avg = np.repeat(0.0, 100)
 class Camera(object):
     thread = None  # background thread that reads frames from camera
     frame = None  # current frame is stored here by background thread
+    status = False;
+    print(status)
     last_access = 0  # time of last client access to the camera
 
     def initialize(self):
@@ -35,6 +37,19 @@ class Camera(object):
             print(str(e))
             return 401
 
+    def take_video(self, filename, status):
+        if(status == "false"):
+            Camera.status = False
+        else:
+            Camera.status = True
+        self.filename = filename
+        print(Camera.status)
+        #if(status):
+        #    fourcc = cv2.cv.CV_FOURCC(*'XVID')
+        #    global video = cv2.VideoWriter('./pictures/video.avi', fourcc, 30, (int(cap.get(320), int(240)))
+
+
+
         
 
     @classmethod
@@ -52,11 +67,25 @@ class Camera(object):
         camera.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 320)
         camera.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 240)
         camera.set(cv2.cv.CV_CAP_PROP_FPS, 30)
+        prev_status = False
         while(True):
             ret, frame = camera.read()
                 # store frame
                 #stream.seek(0)
             cls.frame = frame#cv2.imencode('.jpeg',frame)[1].tostring()
+            if(cls.status == True and prev_status == False):
+                fourcc = cv2.cv.CV_FOURCC(*'XVID')
+                video = cv2.VideoWriter('./pictures/video.avi', fourcc, 25, (int(320), int(240)))
+            elif cls.status == False and prev_status == True:
+                video.release()
+
+            prev_status = cls.status
+
+            if(cls.status == True):
+                video.write(cls.frame)
+
+                
+
                 # reset stream for next frame
                 #stream.seek(0)
                 #stream.truncate()

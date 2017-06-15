@@ -37,6 +37,11 @@ def take_snapshot():
     filename = request.args.items()[0][1][:-1]
     return str(cam.take_snapshot(filename))
 
+@app.route('/video_capture', methods=['GET'])
+def video_capture():
+    status = request.args.get('status')
+    filename = request.args.get('filename')
+    return str(cam.take_video(filename, status))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)

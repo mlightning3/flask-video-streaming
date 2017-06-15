@@ -10,43 +10,18 @@
     <img src="{{ url_for('video_feed') }}">
     <form id="Form">
 	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
-	    <button type=button id="snapshot" class="waves-effect waves-light btn" value="null">Take Snapshot</button>
-	    <p id="ReturnText"></p>
+	    <button type=button id="snapshot" class="indigo waves-effect waves-light btn" value="null">Take Snapshot</button>
     </form>
+    <form id="Form2">
+	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
+	    <input id="cap_status" name="status" type="hidden" value="false"></input>
+	    <button type=button id="video_capture" class="indigo waves-effect waves-light btn" value="null"><span>Start Capture</span></button>
+    </form>
+	    <p id="ReturnText"></p>
 
 	  </div> <!-- container -->
   </body>
 
-
-  <script>
-
-	$('#snapshot').click(function() {
-		url_params = $("#Form").serialize();
-		//filename = formvals[0].value;
-		filename = $("#Form").serializeArray()[0].value;
-
-		if(filename === ""){
-			$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Filename must not be left empty. </strong></h4>");
-
-		}else{
-		$.ajax({
-			url: '/snapshot',
-			data: JSON.stringify(url_params, null, '\t'),
-			type: 'GET',
-                        contentType:'application/json;charset=UTF-8',
-			success: function(response) {
-				console.log(response);
-				//filename = url_params.substring(url_params.indexOf('=') + 1);
-				$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Picture: " + filename  +".jpg written. </strong></h4>");
-				console.log(JSON.stringify(url_params, null, '\t'));
-			},
-			error: function(error) {
-				console.log(error.responseText);
-			}
-		});
-		}
-	});
-	
-  </script>
+	<script src="/static/js/index.js"></script>
 
 </html>
