@@ -11,7 +11,7 @@ class Camera(object):
     thread = None  # background thread that reads frames from camera
     frame = None  # current frame is stored here by background thread
     status = False;
-    print(status)
+    filename = '';
     last_access = 0  # time of last client access to the camera
 
     def initialize(self):
@@ -31,7 +31,7 @@ class Camera(object):
 
     def take_snapshot(self, filename):
         try:
-            cv2.imwrite('./pictures/' + filename + ".jpg", self.frame)
+            cv2.imwrite('./media/' + filename + ".jpg", self.frame)
             return 400
         except Exception as e:
             print(str(e))
@@ -42,7 +42,7 @@ class Camera(object):
             Camera.status = False
         else:
             Camera.status = True
-        self.filename = filename
+        Camera.filename = filename
         print(Camera.status)
         #if(status):
         #    fourcc = cv2.cv.CV_FOURCC(*'XVID')
@@ -75,7 +75,7 @@ class Camera(object):
             cls.frame = frame#cv2.imencode('.jpeg',frame)[1].tostring()
             if(cls.status == True and prev_status == False):
                 fourcc = cv2.cv.CV_FOURCC(*'XVID')
-                video = cv2.VideoWriter('./pictures/video.avi', fourcc, 25, (int(320), int(240)))
+                video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 25, (int(320), int(240)))
             elif cls.status == False and prev_status == True:
                 video.release()
 
