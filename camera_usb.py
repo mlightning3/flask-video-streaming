@@ -58,13 +58,9 @@ class Camera(object):
     @classmethod
     def _thread(cls):
 
-#=========================
-#    Video Settings      
-#=========================
-
-#CV_CAP_PROP_FRAME_WIDTH Width of the frames in the video stream.
-#CV_CAP_PROP_FRAME_HEIGHT Height of the frames in the video stream.
-#CV_CAP_PROP_FPS Frame rate
+        #=========================
+        #    Video Settings      
+        #=========================
 
         camera = cv2.VideoCapture(0)
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
@@ -84,11 +80,11 @@ class Camera(object):
             
             cls.frame = frame
             
-            if(cls.status == True and prev_status == False):
+            if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
                     video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 25, (frame_width, frame_height))
                     started = True
-            elif cls.status == False and prev_status == True:
+            elif cls.status == False and cls.prev_status == True:
                 video.release()
                 started = False
                 cls.prev_status = False
