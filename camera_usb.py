@@ -91,7 +91,7 @@ class Camera(object):
 
             cv2.putText(frame,str(Camera.status),(30,30),font,1,(0,0,255),2)
             cv2.putText(frame,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
-            cv2.putText(frame,str(fps),(30,80),font,1,(0,255,255),2)
+            cv2.putText(frame,str(fps),(30,130),font,1,(0,255,255),2) # FPS testing
 
 
             cls.frame = frame
