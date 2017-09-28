@@ -72,17 +72,33 @@ class Camera(object):
 
         font = cv2.FONT_HERSHEY_SIMPLEX
 
+        #FPS variables
+        start = time.time()
+        frames = 0
+        fps = 0
+
         while(True):
             ret, frame = camera.read()
 
+            timeon = time.time() # For keeping track of when the loop starts again
+
+            #FPS testing 
+            frames = frames + 1
+            if(frames == 100):
+                fps = frames / (time.time() - start)
+                start = time.time()
+                frames = 0
+
             cv2.putText(frame,str(Camera.status),(30,30),font,1,(0,0,255),2)
             cv2.putText(frame,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
-            
+            cv2.putText(frame,str(fps),(30,80),font,1,(0,255,255),2)
+
+
             cls.frame = frame
             
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
-                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 25, (frame_width, frame_height))
+                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 7, (frame_width, frame_height))
                     started = True
             elif cls.status == False and cls.prev_status == True:
                 video.release()
@@ -100,4 +116,11 @@ class Camera(object):
                     camera.release()
                     started = False
                 break
+
+            # To try to keep the framerate constant
+            waittime = .125 - (time.time() - timeon)
+            if waittime < 0:
+                waittime = 0
+            time.sleep(waittime)
+
         cls.thread = None
