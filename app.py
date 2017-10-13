@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from flask import Flask, render_template, Response, request, g
+from flask import Flask, render_template, Response, request, g, send_from_directory
 
 # emulated camera
 from camera_usb import Camera
@@ -73,7 +73,8 @@ def video_feed():
 def take_snapshot():
     filename = request.args.items()[0][1][:-1]
     today = datetime.date.today()
-    g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, filename]) # Inserts information into the database
+    full_filename = filename + ".jpg"
+    g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
     g.db.commit()
     return str(cam.take_snapshot(filename))
 
@@ -85,6 +86,12 @@ def video_capture():
     #g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, filename]) # Inserts information into the database
     #g.db.commit()
     return str(cam.take_video(filename, status))
+
+#Creating a way to get media information
+#Probably not a great idea to keep forever
+@app.route('/media/<path:path>')
+def send_media(path):
+    return send_from_directory('media', path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, threaded=True)
