@@ -20,7 +20,7 @@
 	    <p id="ReturnText"></p>
 	  <ul class=pictures>
 	    {% for entry in pictures %}
-	    <li>Date: {{ entry.date }} File: {{ entry.fileName }}
+	    <li>Date: {{ entry.date }} File: <a href="/media/{{ entry.fileName }}">{{ entry.fileName }}</a>
 	    {% else %}
 	    <li>No pictures yet
 	    {% endfor %}
