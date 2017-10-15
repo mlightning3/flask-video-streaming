@@ -48,7 +48,7 @@ def teardown_request(exception):
 @app.route('/')
 def index():
     """Video streaming home page."""
-    cur = g.db.execute('SELECT date, fileName FROM media ORDER BY id desc') # Grabs all the file names in the database
+    cur = g.db.execute('SELECT date, fileName FROM media ORDER BY id ASC') # Grabs all the file names in the database
     entries = [dict(date=row[0], fileName=row[1]) for row in cur.fetchall()] # Puts that into a structure that will be read by the webpage
     return render_template('index.html', pictures=entries) # Entires gets sent to a variable in the webpage
 

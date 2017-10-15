@@ -1,5 +1,8 @@
 capture_status = true;
 
+var d = new Date();
+var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
+
 $('#video_capture').click(function() {
 	//url_params = $("#Form2").serialize();
 	//filename = formvals[0].value;
@@ -67,6 +70,11 @@ $('#snapshot').click(function() {
 			console.log(response);
 			//filename = url_params.substring(url_params.indexOf('=') + 1);
 			$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Picture: " + filename  +".jpg written. </strong></h4>");
+			$('#MediaTable').append(
+				"<tr>" +
+				"<td>" + today + "</td>" +
+				"<td><a href=\"/media/" + filename + ".jpg\">" + filename + ".jpg</a></td>" +
+				"</tr>");
 			console.log(JSON.stringify(url_params, null, '\t'));
 		},
 		error: function(error) {
