@@ -37,9 +37,12 @@ $('#video_capture').click(function() {
 		type: 'GET',
 		contentType:'application/json;charset=UTF-8',
 		success: function(response) {
-//			console.log(response);
-//			filename = url_params.substring(url_params.indexOf('=') + 1);
-	//		$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Picture: " + filename  +".jpg written. </strong></h4>");
+		$('#MediaTable').append(
+				"<tr>" +
+				"<td>" + today + "</td>" +
+				"<td><a href=\"/media/" + filename + ".avi\">" + filename + ".avi</a></td>" +
+				"</tr>");
+
 			console.log(JSON.stringify(url_params, null, '\t'));
 		},
 		error: function(error) {
@@ -68,7 +71,6 @@ $('#snapshot').click(function() {
 		contentType:'application/json;charset=UTF-8',
 		success: function(response) {
 			console.log(response);
-			//filename = url_params.substring(url_params.indexOf('=') + 1);
 			$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Picture: " + filename  +".jpg written. </strong></h4>");
 			$('#MediaTable').append(
 				"<tr>" +

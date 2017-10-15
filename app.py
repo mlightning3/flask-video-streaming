@@ -82,9 +82,11 @@ def take_snapshot():
 def video_capture():
     status = request.args.get('status')
     filename = request.args.get('filename')
-    #today = datetime.date.today()
-    #g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, filename]) # Inserts information into the database
-    #g.db.commit()
+    if status == 'true' or status == 'True': #Only when we are done saving a video do we add it to the database
+        today = datetime.date.today()
+        full_filename = filename + ".avi"
+        g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
+        g.db.commit()
     return str(cam.take_video(filename, status))
 
 #Creating a way to get media information
