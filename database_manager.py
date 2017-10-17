@@ -15,7 +15,7 @@ def main(argv):
 
     #Command line parsing
     try:
-        opts, args = getopt.getopt(argv, "nlra:h", ["remove=", "add="])
+        opts, args = getopt.getopt(argv, "nlr:a:h", ["remove=", "add="])
     except getopt.GetoptError:
         print "Unknown command, try -h for help"
         sys.exit(2)
@@ -34,7 +34,12 @@ def main(argv):
                 print row
             sys.exit()
         elif opt in ("-r", "--remove"):
-            print "soon to remove"
+            filename = arg
+            db = sqlite3.connect(DATABASE)
+            exist = db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
+            if exist == 1:
+                db.execute('DELETE FROM media WHERE fileName=?', [filename])
+                db.commit()
             sys.exit()
         elif opt in ("-a", "--add"):
             filename = arg
@@ -47,8 +52,8 @@ def main(argv):
                 sys.exit()
             print "File does not exist, or is not in the media folder"
             sys.exit()
-                
-    sys.exit()
+        else:
+            sys.exit()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
