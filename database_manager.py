@@ -29,7 +29,7 @@ def main(argv):
             sys.exit()
         elif opt in ("-n"):
             print "Creating a new database..."
-            init_db()
+            init_db() # Calls this from app.py, where I intend to add most of this functionality 
             print "Done"
             sys.exit()
         elif opt in ("-l"):
@@ -40,6 +40,7 @@ def main(argv):
         elif opt in ("-r", "--remove"):
             filename = arg
             db = sqlite3.connect(DATABASE)
+            # This returns 1 if there is at least 1 record of the filename in the database
             exist = db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
             if exist == 1:
                 db.execute('DELETE FROM media WHERE fileName=?', [filename])
@@ -49,7 +50,7 @@ def main(argv):
             filename = arg
             path = "./media/" + filename
             if os.path.isfile(path) == True:
-                date = datetime.date.today()
+                date = datetime.date.today() # Since there isn't a sure way to get the time the file was created, use today instead
                 db = sqlite3.connect(DATABASE)
                 db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
                 db.commit()
