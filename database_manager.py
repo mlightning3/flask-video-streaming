@@ -6,13 +6,15 @@ import os
 import sys, getopt
 
 # Code reuse
-from app import init_db, grab_entries 
+from app import init_db 
+
+DATABASE = './media/media.db'
 
 def main(argv):
 
     #Command line parsing
     try:
-        opts, args = getopt.getopt(argv, "h:n:l:r")
+        opts, args = getopt.getopt(argv, "hnlr")
     except getopt.GetoptError:
         print "Unknown command, try -h for help"
         sys.exit(2)
@@ -26,14 +28,14 @@ def main(argv):
             print "Done"
             sys.exit()
         elif opt in ("-l"):
-            entries = grab_entries()
-            for row in entries:
-                print row[0] + "\t" + row[1]
+            db = sqlite3.connect(DATABASE)
+            for row in db.execute('SELECT date, fileName FROM media ORDER BY id ASC'):
+                print row
             sys.exit()
         elif opt in ("-r"):
             print "soon to remove"
             sys.exit()
-
+    sys.exit()
 
 if __name__ == "__main__":
     main(sys.argv[1:])
