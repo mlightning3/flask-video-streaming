@@ -21,7 +21,11 @@ def main(argv):
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print "-h for help\n -n for a new database\n -l for listing database\n -r <filename> for removing a file from the database\n -a <filename> for adding a file to the database"
+            print "-h for help"
+            print "-n for a new database"
+            print "-l for listing database"
+            print "-r <filename> for removing a file from the database"
+            print "-a <filename> for adding a file to the database"
             sys.exit()
         elif opt in ("-n"):
             print "Creating a new database..."
