@@ -1,6 +1,7 @@
 # Stuff for the database
 import sqlite3
 import os
+import datetime
 
 # Command line parsing
 import sys, getopt
@@ -14,13 +15,13 @@ def main(argv):
 
     #Command line parsing
     try:
-        opts, args = getopt.getopt(argv, "hnlr")
+        opts, args = getopt.getopt(argv, "nlra:h", ["remove=", "add="])
     except getopt.GetoptError:
         print "Unknown command, try -h for help"
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print "-h for help, -n for a new database, -l for listing database, -r <filename> for removing a file from the database"
+            print "-h for help\n -n for a new database\n -l for listing database\n -r <filename> for removing a file from the database\n -a <filename> for adding a file to the database"
             sys.exit()
         elif opt in ("-n"):
             print "Creating a new database..."
@@ -32,9 +33,21 @@ def main(argv):
             for row in db.execute('SELECT date, fileName FROM media ORDER BY id ASC'):
                 print row
             sys.exit()
-        elif opt in ("-r"):
+        elif opt in ("-r", "--remove"):
             print "soon to remove"
             sys.exit()
+        elif opt in ("-a", "--add"):
+            filename = arg
+            path = "./media/" + filename
+            if os.path.isfile(path) == True:
+                date = datetime.date.today()
+                db = sqlite3.connect(DATABASE)
+                db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
+                db.commit()
+                sys.exit()
+            print "File does not exist, or is not in the media folder"
+            sys.exit()
+                
     sys.exit()
 
 if __name__ == "__main__":
