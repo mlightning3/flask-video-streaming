@@ -71,7 +71,7 @@ class Camera(object):
 
         while(True):
             timeon = time.time()
-            constframe = frame
+            constframe = cls.frame
 
             cv2.putText(constframe,str(Camera.status),(30,30),font,1,(0,0,255),2)
             cv2.putText(constframe,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
@@ -99,6 +99,8 @@ class Camera(object):
             if waittime < 0:
                 waittime = 0
             time.sleep(waittime)
+
+        cls.watcher = None
 
 
     @classmethod
