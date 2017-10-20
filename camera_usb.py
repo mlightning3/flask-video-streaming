@@ -78,7 +78,7 @@ class Camera(object):
 
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
-                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 7, (frame_width, frame_height))
+                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 7, (cls.frame_width, cls.frame_height))
                     started = True
             elif cls.status == False and cls.prev_status == True:
                 video.release()
@@ -111,8 +111,8 @@ class Camera(object):
         #=========================
 
         camera = cv2.VideoCapture(0)
-        frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
-        frame_height = int(camera.get(4))
+        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
         while(True):
             ret, frame = camera.read()
             cls.frame = frame
