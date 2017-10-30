@@ -18,6 +18,9 @@ class Camera(object):
     frame_width = 0
     frame_height = 0
 
+    fps = 20 # The target frames per second we want to get to
+    fps_time = 1 / fps# How long max we have to wait to get that fps
+
     def initialize(self):
         if Camera.thread is None:
             # start background frame thread
@@ -63,22 +66,20 @@ class Camera(object):
 
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
         started = False
-        font = cv2.FONT_HERSHEY_SIMPLEX
+        #font = cv2.FONT_HERSHEY_SIMPLEX
         #FPS variables
         start = time.time()
-        frames = 0
-        fps = 0
 
         while(True):
             timeon = time.time()
             constframe = cls.frame
 
-            cv2.putText(constframe,str(Camera.status),(30,30),font,1,(0,0,255),2)
-            cv2.putText(constframe,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
+            #cv2.putText(constframe,str(Camera.status),(30,30),font,1,(0,0,255),2)
+            #cv2.putText(constframe,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
 
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
-                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, 7, (cls.frame_width, cls.frame_height))
+                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, cls.fps, (cls.frame_width, cls.frame_height))
                     started = True
             elif cls.status == False and cls.prev_status == True:
                 video.release()
@@ -95,7 +96,7 @@ class Camera(object):
                 break
 
             # To try to keep the framerate constant
-            waittime = .125 - (time.time() - timeon)
+            waittime = cls.fps_time - (time.time() - timeon)
             if waittime < 0:
                 waittime = 0
             time.sleep(waittime)
