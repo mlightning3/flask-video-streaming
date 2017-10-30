@@ -1,0 +1,31 @@
+<html>
+	<script src="/static/js/jquery-1.11.3.min.js"></script>
+	<link rel = "stylesheet" type = "text/css" href = "/static/css/materialize.min.css"/>
+  <head>
+    <title>Video Streaming Database Demonstration</title>
+  </head>
+  <body>
+	  <div class="container center">
+    <h1>Media Listing Editor</h1>
+	  <table id="MediaTable" class=pictures>
+	    <tr>
+		    <td>Date</td>
+		    <td>File Name</td>
+	    </tr>
+	    {% for entry in pictures %}
+	    <tr>
+		    <td>{{ entry.date }} </td>
+		    <td><a href="/media/{{ entry.fileName }}">{{ entry.fileName }}</a></td>
+	    </tr>
+	    {% else %}
+	    <tr>
+	    <td>No pictures yet
+	    </tr>
+	    {% endfor %}
+	  </table>
+	  </div> <!-- container -->
+  </body>
+
+	<script src="/static/js/index.js"></script>
+
+</html>

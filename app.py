@@ -93,8 +93,35 @@ def video_capture():
         g.db.commit()
     return str(cam.take_video(filename, status))
 
+# Way to edit database from web browser
+@app.route('/database')
+def edit_database():
+    entries = grab_entries()
+    return render_template('database.html', pictures=entries)
+
+@app.route('/database/add', methods=['GET'])
+def add_to_database():
+    filename = request.args.get('file')
+    path = './media/' + filename
+    if os.path.isfile(path) == True:
+        date = datetime.date.today()
+        db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
+        db.commit()
+
+@app.route('/database/remove', methods=['GET'])
+def remove_from_database():
+    filename = request.args.get('file')
+    exist = db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
+    if exist == 1:
+        db.execute('DELETE FROM media WHERE fileName=?', [filename])
+        db.commit()
+
+@app.route('/database/new')
+def new_database():
+    init_db()
+
 #Creating a way to get media information
-#Probably not a great idea to keep forever
+#Sends the file to users device, meaning video files will need a player on that device
 @app.route('/media/<path:path>')
 def send_media(path):
     return send_from_directory('media', path)
