@@ -21,15 +21,15 @@ DATABASE = './media/media.db'
 
 # To initalize the database if it doesn't exist
 def init_db():
-    with closing(connect_db()) as db:
+    with closing(sqlite3.connect(DATABASE)) as db:
         with app.open_resource('media_schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
 
 # Connect to the database
 def connect_db():
-    #if os.path.isfile(DATABASE) == False:
-    #    init_db() # Create the database if it doesn't exist
+    if os.path.isfile(DATABASE) == False:
+        init_db() # Create the database if it doesn't exist
     return sqlite3.connect(DATABASE)
 
 def grab_entries():
