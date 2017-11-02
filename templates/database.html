@@ -7,6 +7,15 @@
   <body>
 	  <div class="container center">
     <h1>Media Listing Editor</h1>
+    	  <form id="Form">
+		  <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
+	  	  <button type=button id="add" class="indigo waves-effect waves-light btn" value="null">Add File</button>
+	  </form>
+	  <form id="Form2">
+		  <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
+	  	  <button type=button id="remove" class="indigo waves-effect waves-light btn" value="null">Remove File</button>
+	  </form>
+	  <p id="ReturnText"></p>
 	  <table id="MediaTable" class=pictures>
 	    <tr>
 		    <td>Date</td>
@@ -23,9 +32,10 @@
 	    </tr>
 	    {% endfor %}
 	  </table>
+	  <button type=button id="new" class="indigo waves-effect waves-light btn" value="null">New Database</button>
 	  </div> <!-- container -->
   </body>
 
-	<script src="/static/js/index.js"></script>
+	<script src="/static/js/database.js"></script>
 
 </html>

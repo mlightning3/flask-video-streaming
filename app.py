@@ -101,24 +101,29 @@ def edit_database():
 
 @app.route('/database/add', methods=['GET'])
 def add_to_database():
-    filename = request.args.get('file')
+    #filename = request.args.get('file')
+    filename = request.args.items()[0][1][:-1]
     path = './media/' + filename
     if os.path.isfile(path) == True:
         date = datetime.date.today()
-        db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
-        db.commit()
+        g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
+        g.db.commit()
+    return str(400)
 
 @app.route('/database/remove', methods=['GET'])
 def remove_from_database():
-    filename = request.args.get('file')
-    exist = db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
+    #filename = request.args.get('file')
+    filename = request.args.items()[0][1][:-1]
+    exist = g.db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
     if exist == 1:
-        db.execute('DELETE FROM media WHERE fileName=?', [filename])
-        db.commit()
+        g.db.execute('DELETE FROM media WHERE fileName=?', [filename])
+        g.db.commit()
+    return str(400)
 
-@app.route('/database/new')
+@app.route('/database/new', methods=['GET'])
 def new_database():
     init_db()
+    return str(400)
 
 #Creating a way to get media information
 #Sends the file to users device, meaning video files will need a player on that device
