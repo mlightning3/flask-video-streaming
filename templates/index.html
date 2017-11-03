@@ -18,7 +18,22 @@
 	    <button type=button id="video_capture" class="indigo waves-effect waves-light btn" value="null"><span>Start Capture</span></button>
     </form>
 	    <p id="ReturnText"></p>
-
+	  <table id="MediaTable" class=pictures>
+	    <tr>
+		    <td>Date</td>
+		    <td>File Name</td>
+	    </tr>
+	    {% for entry in pictures %}
+	    <tr>
+		    <td>{{ entry.date }} </td>
+		    <td><a href="/media/{{ entry.fileName }}">{{ entry.fileName }}</a></td>
+	    </tr>
+	    {% else %}
+	    <tr>
+	    <td>No pictures yet
+	    </tr>
+	    {% endfor %}
+	  </table>
 	  </div> <!-- container -->
   </body>
 
