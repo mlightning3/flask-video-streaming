@@ -18,6 +18,9 @@ class Camera(object):
     frame_width = 0
     frame_height = 0
 
+    max_width = 320
+    max_height = 240
+
     fps = 20 # The target frames per second we want to get to
     fps_time = 1 / fps# How long max we have to wait to get that fps
 
@@ -114,9 +117,14 @@ class Camera(object):
         camera = cv2.VideoCapture(0)
         cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
         cls.frame_height = int(camera.get(4))
+
         while(True):
             ret, frame = camera.read()
-            cls.frame = frame
+            if cls.frame_width > cls.max_width or cls.frame_height > cls.max_height:
+                scaling = cls.max_width/float(cls.frame_width)
+                cls.frame = cv2.resize(frame, None, fx=scaling, fy=scaling, interpolation=cv2.INTER_AREA)
+            else:
+                cls.frame = frame
             
             if time.time() - cls.last_access > 2:
                 break
