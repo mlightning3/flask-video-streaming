@@ -21,6 +21,8 @@ class Camera(object):
     max_width = 320
     max_height = 240
 
+    blank_frame = np.zeros((max_height, max_width, 3), np.uint8) # Creates a black image when there is nothing on the camera
+
     fps = 20 # The target frames per second we want to get to
     fps_time = 1 / fps# How long max we have to wait to get that fps
 
@@ -119,7 +121,14 @@ class Camera(object):
         cls.frame_height = int(camera.get(4))
 
         while(True):
-            ret, frame = camera.read()
+            try:
+                ret, frame = camera.read()
+            except:
+                ret, frame = (-1, cls.blank_frame)
+
+            if ret == False:
+                frame = cls.blank_frame
+            
             if cls.frame_width > cls.max_width or cls.frame_height > cls.max_height:
                 scaling = cls.max_width/float(cls.frame_width)
                 cls.frame = cv2.resize(frame, None, fx=scaling, fy=scaling, interpolation=cv2.INTER_AREA)
