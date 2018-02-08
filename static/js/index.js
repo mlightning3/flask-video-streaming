@@ -23,18 +23,26 @@ $('#video_capture').click(function() {
 	    $(this).removeClass('indigo');
 	    $(this).addClass('red');
 	    $('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Recording... </strong></h4>");
+	}else{
+	    $('#video_capture span').html('Start Capture');
+	    $('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Wrote video file. </strong></h4>");
+	    $(this).removeClass('red');
+	    $(this).addClass('indigo');
+	}
 
-	    $.ajax({
+	$.ajax({
 		url: '/video_capture',
 		data: url_params,
 		type: 'GET',
 		contentType:'application/json;charset=UTF-8',
-		success: function(response) {
+	        success: function(response) {
+		if(capture_status){
 		    $('#MediaTable').append(
 			"<tr>" +
 			    "<td>" + today + "</td>" +
 			    "<td><a href=\"/media/" + filename + ".avi\">" + filename + ".avi</a></td>" +
 			    "</tr>");
+		}
 
 		    console.log(JSON.stringify(url_params, null, '\t'));
 		},
@@ -42,13 +50,6 @@ $('#video_capture').click(function() {
 		    console.log(error.responseText);
 		}
 	    });
-
-	}else{
-	    $('#video_capture span').html('Start Capture');
-	    $('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Wrote video file. </strong></h4>");
-	    $(this).removeClass('red');
-	    $(this).addClass('indigo');
-	}
     }
 });
 
