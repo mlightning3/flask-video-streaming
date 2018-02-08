@@ -9,26 +9,19 @@ avg = np.repeat(0.0, 100)
 
 class Camera(object):
     thread = None  # background thread that reads frames from camera
-    watcher = None # background thread that creates video from frames
     frame = None  # current frame is stored here by background thread
     status = False;
     prev_status = False;
     filename = '';
-    last_access = 0  # time of last client access to the camera
     frame_width = 0
     frame_height = 0
-
-    fps = 20 # The target frames per second we want to get to
-    fps_time = 1 / fps# How long max we have to wait to get that fps
+    fps = 30 # The target frames per second we want to get to
 
     def initialize(self):
         if Camera.thread is None:
             # start background frame thread
             Camera.thread = threading.Thread(target=self._thread)
             Camera.thread.start()
-            # start background video thread
-            Camera.watcher = threading.Thread(target=self._watcher)
-            Camera.watcher.start()
 
             # wait until frames start to be available
             while self.frame is None:
@@ -60,22 +53,22 @@ class Camera(object):
         #    fourcc = cv2.cv.CV_FOURCC(*'XVID')
         #    global video = cv2.VideoWriter('./pictures/video.avi', fourcc, 30, (int(cap.get(320), int(240)))
 
-
     @classmethod
-    def _watcher(cls):
+    def _thread(cls):
+
+        #=========================
+        #    Video Settings      
+        #=========================
 
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
         started = False
-        #font = cv2.FONT_HERSHEY_SIMPLEX
-        #FPS variables
-        start = time.time()
-
+        camera = cv2.VideoCapture(0)
+        camera.set(5, fps)
+        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
         while(True):
-            timeon = time.time()
-            constframe = cls.frame
-
-            #cv2.putText(constframe,str(Camera.status),(30,30),font,1,(0,0,255),2)
-            #cv2.putText(constframe,str(Camera.prev_status),(30,80),font,1,(0,0,255),2)
+            ret, frame = camera.read()
+            cls.frame = frame
 
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
@@ -87,38 +80,12 @@ class Camera(object):
                 cls.prev_status = False
 
             if(cls.status == True or started == True):
-                video.write(constframe)
+                video.write(frame)
 
             if time.time() - cls.last_access > 2:
                 if started == True: # If things didn't close nicely before, we should close things now to save any file we started
                     video.release()
                     started = False
-                break
-
-            # To try to keep the framerate constant
-            waittime = cls.fps_time - (time.time() - timeon)
-            if waittime < 0:
-                waittime = 0
-            time.sleep(waittime)
-
-        cls.watcher = None
-
-
-    @classmethod
-    def _thread(cls):
-
-        #=========================
-        #    Video Settings      
-        #=========================
-
-        camera = cv2.VideoCapture(0)
-        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
-        cls.frame_height = int(camera.get(4))
-        while(True):
-            ret, frame = camera.read()
-            cls.frame = frame
-            
-            if time.time() - cls.last_access > 2:
                 break
 
         cls.thread = None
