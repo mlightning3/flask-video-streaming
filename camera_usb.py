@@ -15,7 +15,18 @@ class Camera(object):
     filename = '';
     frame_width = 0
     frame_height = 0
+<<<<<<< HEAD
     fps = 30 # The target frames per second we want to get to
+=======
+
+    max_width = 320
+    max_height = 240
+
+    blank_frame = np.zeros((max_height, max_width, 3), np.uint8) # Creates a black image when there is nothing on the camera
+
+    fps = 20 # The target frames per second we want to get to
+    fps_time = 1 / fps# How long max we have to wait to get that fps
+>>>>>>> a68eb887bfc9e500deef759cab31328ad3856b74
 
     def initialize(self):
         if Camera.thread is None:
@@ -88,4 +99,45 @@ class Camera(object):
                     started = False
                 break
 
+<<<<<<< HEAD
+=======
+            # To try to keep the framerate constant
+            waittime = cls.fps_time - (time.time() - timeon)
+            if waittime < 0:
+                waittime = 0
+            time.sleep(waittime)
+
+        cls.watcher = None
+
+
+    @classmethod
+    def _thread(cls):
+
+        #=========================
+        #    Video Settings      
+        #=========================
+
+        camera = cv2.VideoCapture(0)
+        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
+
+        while(True):
+            try:
+                ret, frame = camera.read()
+            except:
+                ret, frame = (-1, cls.blank_frame)
+
+            if ret == False:
+                frame = cls.blank_frame
+            
+            if cls.frame_width > cls.max_width or cls.frame_height > cls.max_height:
+                scaling = cls.max_width/float(cls.frame_width)
+                cls.frame = cv2.resize(frame, None, fx=scaling, fy=scaling, interpolation=cv2.INTER_AREA)
+            else:
+                cls.frame = frame
+            
+            if time.time() - cls.last_access > 2:
+                break
+
+>>>>>>> a68eb887bfc9e500deef759cab31328ad3856b74
         cls.thread = None
