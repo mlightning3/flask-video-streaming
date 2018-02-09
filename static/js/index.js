@@ -15,8 +15,8 @@ $('#video_capture').click(function() {
 
     }else{
 	capture_status = !capture_status;
-	$('#cap_status').val(capture_status);
-
+	$('#cap_status').val(capture_status);      // Put our state into the html
+	url_params = $("#Form2").serializeArray(); // Grab the changes we make to the html
 	
 	if(!capture_status){
 	    $('#video_capture span').html('Stop Capture');
