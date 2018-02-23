@@ -21,7 +21,7 @@ $('#add').click(function() {
 			$('#MediaTable').append(
 				"<tr>" +
 				"<td>" + today + "</td>" +
-				"<td><a href=\"/media/" + filename + ".jpg\">" + filename + "</a></td>" +
+				"<td><a href=\"/media/" + filename + ".jpg\" target=\"_blank\">" + filename + "</a></td>" +
 				"</tr>");
 			console.log(JSON.stringify(url_params, null, '\t'));
 		},

@@ -4,8 +4,6 @@ var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
 
 $('#video_capture').click(function() {
-    //url_params = $("#Form2").serialize();
-    //filename = formvals[0].value;
     url_params = $("#Form2").serializeArray();
     filename = url_params[0].value;
     console.log(capture_status);
@@ -40,7 +38,7 @@ $('#video_capture').click(function() {
 		    $('#MediaTable').append(
 			"<tr>" +
 			    "<td>" + today + "</td>" +
-			    "<td><a href=\"/media/" + filename + ".avi\">" + filename + ".avi</a></td>" +
+			    "<td><a href=\"/media/" + filename + ".avi\" target=\"_blank\">" + filename + ".avi</a></td>" +
 			    "</tr>");
 		}
 
@@ -54,9 +52,8 @@ $('#video_capture').click(function() {
 });
 
 $('#snapshot').click(function() {
-    url_params = $("#Form").serialize();
-    //filename = formvals[0].value;
-    filename = $("#Form").serializeArray()[0].value;
+    url_params = $("#Form").serializeArray();
+    filename = url_params[0].value;
 
     if(filename === ""){
 	$('#ReturnText').replaceWith("<h4 id='ReturnText'><strong> Filename must not be left empty. </strong></h4>");
@@ -64,7 +61,7 @@ $('#snapshot').click(function() {
     }else{
 	$.ajax({
 	    url: '/snapshot',
-	    data: JSON.stringify(url_params, null, '\t'),
+	    data: url_params,
 	    type: 'GET',
 	    contentType:'application/json;charset=UTF-8',
 	    success: function(response) {
@@ -73,7 +70,7 @@ $('#snapshot').click(function() {
 		$('#MediaTable').append(
 		    "<tr>" +
 			"<td>" + today + "</td>" +
-			"<td><a href=\"/media/" + filename + ".jpg\">" + filename + ".jpg</a></td>" +
+			"<td><a href=\"/media/" + filename + ".jpg\" target=\"_blank\">" + filename + ".jpg</a></td>" +
 			"</tr>");
 		console.log(JSON.stringify(url_params, null, '\t'));
 	    },

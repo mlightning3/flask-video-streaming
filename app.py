@@ -75,7 +75,7 @@ def video_feed():
 
 @app.route('/snapshot', methods=['GET'])
 def take_snapshot():
-    filename = request.args.items()[0][1][:-1]
+    filename = request.args.get('filename')
     today = datetime.date.today()
     full_filename = filename + ".jpg"
     g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
