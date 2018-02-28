@@ -3,7 +3,7 @@ import io
 import threading
 import cv2
 import numpy as np
-import Queue
+import Queue # When running on the Tinkerboard, use queue and queue.Queue()
 
 avg = np.repeat(0.0, 100)
 
@@ -69,10 +69,8 @@ class Camera(object):
         blank_frame = np.zeros((cls.frame_height, cls.frame_width, 3), np.uint8) # Creates a black image when there is nothing in the buffer
         while(True):
             timeon = time.time()
-            if not buff.empty():
-                constframe = buff.get()
-            else:
-                constframe = blank_frame
+            if not cls.buff.empty():
+                constframe = cls.buff.get()
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
                     video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, cls.fps, (cls.frame_width, cls.frame_height))
@@ -123,7 +121,7 @@ class Camera(object):
                 frame = blank_frame
             cls.frame = frame
             if cls.status == True:
-                buff.put(frame)
+                cls.buff.put(frame)
 
             if time.time() - cls.last_access > 2:
                 break
