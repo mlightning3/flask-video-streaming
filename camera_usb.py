@@ -8,6 +8,7 @@ avg = np.repeat(0.0, 100)
 
 class Camera(object):
     thread = None  # background thread that reads frames from camera
+    watcher = None # background thread that writes vidoes file
     frame = None  # current frame is stored here by background thread
     status = False;
     prev_status = False;
@@ -15,12 +16,16 @@ class Camera(object):
     frame_width = 0
     frame_height = 0
     fps = 30 # The target frames per second we want to get to
+    fps_time = 1/fps
 
     def initialize(self):
         if Camera.thread is None:
             # start background frame thread
             Camera.thread = threading.Thread(target=self._thread)
             Camera.thread.start()
+            # start background video writing thread
+            Camera.watcher = threading.Thread(target=self._watcher)
+            Camera.watcher.start()
 
             # wait until frames start to be available
             while self.frame is None:
@@ -49,23 +54,19 @@ class Camera(object):
         Camera.filename = filename
         print(Camera.status)
 
+    #=========================
+    # Video writing thread
+    #
+    # This takes the frames made by the other thread to write a video with a constant framerate
+    #=========================
     @classmethod
-    def _thread(cls):
-
-        #=========================
-        #    Video Settings      
-        #=========================
-
+    def _watcher(cls):
+        
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
         started = False
-        camera = cv2.VideoCapture(0)
-        camera.set(5, cls.fps)
-        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
-        cls.frame_height = int(camera.get(4))
         while(True):
-            ret, frame = camera.read()
-            cls.frame = frame
-
+            timeon = time.time()
+            constframe = cls.frame
             if(cls.status == True and cls.prev_status == False):
                 if(started == False): # Only start writing to file if we haven't already started
                     video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, cls.fps, (cls.frame_width, cls.frame_height))
@@ -76,12 +77,42 @@ class Camera(object):
                 cls.prev_status = False
 
             if(cls.status == True or started == True):
-                video.write(frame)
+                video.write(constframe)
 
             if time.time() - cls.last_access > 2:
                 if started == True: # If things didn't close nicely before, we should close things now to save any file we started
                     video.release()
                     started = False
                 break
+            # Trying to keep the video framerate constant
+            waittime = cls.fps_time - (time.time() - timeon)
+            if waittime < 0:
+                waittime = 0
+            time.sleep(waittime)
 
+        cls.watcher = None
+
+    #=========================
+    # Video capture thread
+    #
+    # This takes frames off of the camera and places it in frame
+    #=========================
+    @classmethod
+    def _thread(cls):
+
+        #=========================
+        #    Video Settings      
+        #=========================       
+        camera = cv2.VideoCapture(0)
+        camera.set(5, cls.fps)
+        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
+        while(True):
+            ret, frame = camera.read()
+            cls.frame = frame
+
+            if time.time() - cls.last_access > 2:
+                break
+
+        camera.release()
         cls.thread = None
