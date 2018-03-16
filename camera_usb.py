@@ -66,33 +66,17 @@ class Camera(object):
         
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
         started = False
-        blank_frame = np.zeros((cls.frame_height, cls.frame_width, 3), np.uint8) # Creates a black image when there is nothing in the buffer
         while(True):
-            timeon = time.time()
-            if not cls.buff.empty():
-                constframe = cls.buff.get()
-            if(cls.status == True and cls.prev_status == False):
-                if(started == False): # Only start writing to file if we haven't already started
-                    video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, cls.fps, (cls.frame_width, cls.frame_height))
-                    started = True
-            elif cls.status == False and cls.prev_status == True:
+            if started == True:
+                video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, cls.fps, (cls.frame_width, cls.frame_height))
+                while cls.buff.empty() == False:
+                    video.write(cls.buff.get())
                 video.release()
-                started = False
                 cls.prev_status = False
-
-            if(cls.status == True or started == True):
-                video.write(constframe)
+                started = False
 
             if time.time() - cls.last_access > 2:
-                if started == True: # If things didn't close nicely before, we should close things now to save any file we started
-                    video.release()
-                    started = False
                 break
-            # Trying to keep the video framerate constant
-            waittime = cls.fps_time - (time.time() - timeon)
-            if waittime < 0:
-                waittime = 0
-            time.sleep(waittime)
 
         cls.watcher = None
 
@@ -108,7 +92,8 @@ class Camera(object):
         #    Video Settings      
         #=========================       
         camera = cv2.VideoCapture(0)
-        camera.set(5, cls.fps)
+        #camera.set(5, cls.fps)
+        cls.fps = int(camera.get(5))
         cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
         cls.frame_height = int(camera.get(4))
         blank_frame = np.zeros((cls.frame_height, cls.frame_width, 3), np.uint8) # Creates a black image when there is nothing on the camera
@@ -122,6 +107,8 @@ class Camera(object):
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(frame)
+            elif cls.status == False and cls.prev_status == True:
+                cls.watcher.started = True
 
             if time.time() - cls.last_access > 2:
                 break
