@@ -12,27 +12,20 @@ class Camera(object):
     watcher = None # background thread that writes vidoes file
     frame = None  # current frame is stored here by background thread
     buff = Queue.Queue()
+    writers = Queue.Queue() # Holds our video writing threads while they work
     status = False;
     prev_status = False;
     filename = '';
     frame_width = 0
     frame_height = 0
-    fps = 30 # The target frames per second we want to get to
-    fps_time = 1/fps
-
-    write = false # Flag to start writing the video file
     ontime = 0 # When we started recording video
     totaltime = 0 # Amount of time we recorded video
-    rcount = 0 # Number of frames read in while recording
 
     def initialize(self):
         if Camera.thread is None:
             # start background frame thread
             Camera.thread = threading.Thread(target=self._thread)
             Camera.thread.start()
-            # start background video writing thread
-            Camera.watcher = threading.Thread(target=self._watcher)
-            Camera.watcher.start()
 
             # wait until frames start to be available
             while self.frame is None:
@@ -67,25 +60,21 @@ class Camera(object):
     # Video writing thread
     #
     # This takes the frames made by the other thread to write a video with a constant framerate
+    # Writes the buffer to file, then ends itself
+    #
+    # frames - Number of frames captured
+    # runtime - Amount of time spent recording
+    # fbuffer - Queue with buffer of frames that were recorded
     #=========================
     @classmethod
-    def _watcher(cls):
+    def _watcher(cls, frames, runtime, fbuffer):
         
         fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
-        while(True):
-            if cls.write == True:
-                fps = cls.rcount / cls.totaltime
-                video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, fps, (cls.frame_width, cls.frame_height))
-                while cls.buff.empty() == False:
-                    video.write(cls.buff.get())
-                video.release()
-                cls.prev_status = False
-                write = False
-
-            if time.time() - cls.last_access > 2:
-                break
-
-        cls.watcher = None
+        fps = frames / runtime
+        video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, fps, (cls.frame_width, cls.frame_height))
+        while fbuffer.empty() == False:
+            video.write(fbuffer.get())
+        video.release()
 
     #=========================
     # Video capture thread
@@ -117,8 +106,9 @@ class Camera(object):
                 cls.buff.put(frame)
                 fcount = fcount + 1
             elif cls.status == False and cls.prev_status == True:
-                cls.rcount = fcount
-                cls.write = True
+                temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
+                temp.start()
+                cls.writers.put(temp)
                 fcount = 0
                 cls.prev_status = False
 
