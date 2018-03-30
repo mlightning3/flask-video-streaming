@@ -109,6 +109,7 @@ class Camera(object):
                 temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
                 temp.start()
                 cls.writers.put(temp)
+                cls.buff = Queue.Queue()
                 fcount = 0
                 cls.prev_status = False
 
