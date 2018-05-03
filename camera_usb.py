@@ -3,12 +3,23 @@ import io
 import threading
 import cv2
 import numpy as np
+import Queue # When running on the Tinkerboard/Debian 9 or less, use queue and queue.Queue()
 
+avg = np.repeat(0.0, 100)
 
 class Camera(object):
     thread = None  # background thread that reads frames from camera
+    watcher = None # background thread that writes vidoes file
     frame = None  # current frame is stored here by background thread
-    last_access = 0  # time of last client access to the camera
+    buff = Queue.Queue()
+    writers = Queue.Queue() # Holds our video writing threads while they work
+    status = False;
+    prev_status = False;
+    filename = '';
+    frame_width = 0
+    frame_height = 0
+    ontime = 0 # When we started recording video
+    totaltime = 0 # Amount of time we recorded video
 
     def initialize(self):
         if Camera.thread is None:
@@ -20,58 +31,90 @@ class Camera(object):
             while self.frame is None:
                 time.sleep(0)
 
-    def get_frame(self, mode):
+    def get_frame(self):
         Camera.last_access = time.time()
         self.initialize()
-        if mode == 0:
-            tmp = cv2.imencode('.jpeg', self.frame)[1].tostring()
-        elif mode == 1:
-            img_np = self.frame
-            #Red Filter Code
-            hsv = cv2.cvtColor(img_np, cv2.COLOR_BGR2HSV)
-            lower_red = np.array([0,50,50])
-            upper_red = np.array([10,255,255])
-            mask0 = cv2.inRange(hsv, lower_red, upper_red)
+        return cv2.imencode('.jpeg', self.frame)[1].tostring()
 
-            lower_red = np.array([160,50,50])
-            upper_red = np.array([180,255,255])
-            mask1 = cv2.inRange(hsv, lower_red, upper_red)
-            mask = mask0 + mask1
+    def take_snapshot(self, filename):
+        try:
+            cv2.imwrite('./media/' + filename + ".jpg", self.frame)
+            return 400
+        except Exception as e:
+            print(str(e))
+            return 401
 
-            # Bitwise-AND mask and original image
-            res = cv2.bitwise_and(img_np, img_np, mask = mask) #didn't work until I changed frame to image
+    def take_video(self, filename, status): # I took this from Brandon's code, so that is why this changed
+        if(status == "false" or status == False):
+            Camera.prev_status = False
+            Camera.status = True
+            Camera.ontime = time.time()
+        else:
+            Camera.prev_status = True
+            Camera.status = False
+            Camera.totaltime = time.time() - Camera.ontime
+        Camera.filename = filename
+        print(Camera.status)
 
-            #Re-encode the numpy array as a bitstream and output it.
-            tmp = cv2.imencode('.jpg',res)[1].tostring()
+    #=========================
+    # Video writing thread
+    #
+    # This takes the frames made by the other thread to write a video with a constant framerate
+    # Writes the buffer to file, then ends itself
+    #
+    # frames - Number of frames captured
+    # runtime - Amount of time spent recording
+    # fbuffer - Queue with buffer of frames that were recorded
+    #=========================
+    @classmethod
+    def _watcher(cls, frames, runtime, fbuffer):
+        
+        fourcc = cv2.VideoWriter_fourcc('X','V','I','D')
+        fps = frames / runtime
+        video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, fps, (cls.frame_width, cls.frame_height))
+        while fbuffer.empty() == False:
+            video.write(fbuffer.get())
+        video.release()
 
-        return tmp
-
+    #=========================
+    # Video capture thread
+    #
+    # This takes frames off of the camera and places it in frame
+    #=========================
     @classmethod
     def _thread(cls):
 
-#=========================
-#    Video Settings      
-#=========================
-
-#CV_CAP_PROP_FRAME_WIDTH Width of the frames in the video stream.
-#CV_CAP_PROP_FRAME_HEIGHT Height of the frames in the video stream.
-#CV_CAP_PROP_FPS Frame rate
-
+        #=========================
+        #    Video Settings      
+        #=========================       
         camera = cv2.VideoCapture(0)
-        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-        camera.set(cv2.CAP_PROP_FPS, 30)
+        #camera.set(5, cls.fps)
+        cls.fps = int(camera.get(5))
+        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
+        blank_frame = np.zeros((cls.frame_height, cls.frame_width, 3), np.uint8) # Creates a black image when there is nothing on the camera
+        fcount = 0
         while(True):
-            ret, frame = camera.read()
-                # store frame
-                #stream.seek(0)
-            cls.frame = frame#cv2.imencode('.jpeg',frame)[1].tostring()
-                # reset stream for next frame
-                #stream.seek(0)
-                #stream.truncate()
+            try:
+                ret, frame = camera.read()
+            except:
+                ret, frame = (-1, blank_frame)
+            if ret == False:
+                frame = blank_frame
+            cls.frame = frame
+            if cls.status == True:
+                cls.buff.put(frame)
+                fcount = fcount + 1
+            elif cls.status == False and cls.prev_status == True:
+                temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
+                temp.start()
+                cls.writers.put(temp)
+                cls.buff = Queue.Queue()
+                fcount = 0
+                cls.prev_status = False
 
-                # if there hasn't been any clients asking for frames in
-                # the last 10 seconds stop the thread
-            if time.time() - cls.last_access > 1:
+            if time.time() - cls.last_access > 2:
                 break
+
+        camera.release()
         cls.thread = None
