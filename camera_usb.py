@@ -3,7 +3,7 @@ import io
 import threading
 import cv2
 import numpy as np
-import Queue # When running on the Tinkerboard/Debian 9 or less, use queue and queue.Queue()
+import queue # When running on the Tinkerboard/Debian 9 or less, use queue and queue.Queue()
 
 avg = np.repeat(0.0, 100)
 
@@ -11,8 +11,8 @@ class Camera(object):
     thread = None  # background thread that reads frames from camera
     watcher = None # background thread that writes vidoes file
     frame = None  # current frame is stored here by background thread
-    buff = Queue.Queue()
-    writers = Queue.Queue() # Holds our video writing threads while they work
+    buff = queue.Queue()
+    writers = queue.Queue() # Holds our video writing threads while they work
     status = False;
     prev_status = False;
     filename = '';
@@ -109,7 +109,7 @@ class Camera(object):
                 temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
                 temp.start()
                 cls.writers.put(temp)
-                cls.buff = Queue.Queue()
+                cls.buff = queue.Queue()
                 fcount = 0
                 cls.prev_status = False
 

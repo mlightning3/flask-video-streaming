@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 from flask import Flask, render_template, Response, request, g, send_from_directory
 
-# emulated camera
-from camera_usb import Camera
-
 # For database
 import sqlite3
 import datetime
 import os
 from contextlib import closing
-
-# Raspberry Pi camera module (requires picamera package)
-from camera_pi_cv import Camera as Pi_Camera
 
 # USB Camera Module, requires cv2
 from camera_usb import Camera
@@ -58,28 +52,10 @@ def index():
     entries = grab_entries()
     return render_template('index.html', pictures=entries) # Entires gets sent to a variable in the webpage
 
-@app.route('/camera/<int:mode>')
-def camera_display(mode):
-    """Video streaming home page."""
-    return render_template('usbcamera.html', mode=mode)
-
-@app.route('/picamera/<int:mode>')
-def picamera_display(mode):
-    """Video streaming home page."""
-    return render_template('picamera.html', mode=mode)
-
-@app.route('/red_filter')
-def red_filter():
-    """Video streaming home page."""
-    return render_template('red.html')
-
-def gen(camera, mode):
+def gen(camera):
     """Video streaming generator function."""
     while True:
-        frame = camera.get_frame(mode)
-        if(type(frame) == None):
-            time.sleep(1)
-            continue
+        frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
@@ -88,12 +64,6 @@ cam = Camera()
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
     return Response(gen(cam),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/pivideo_feed/<int:mode>')
-def pi_video_feed(mode):
-    """Video streaming route. Put this in the src attribute of an img tag."""
-    return Response(gen(Pi_Camera(), mode),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/snapshot', methods=['GET'])
