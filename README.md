@@ -24,7 +24,7 @@ $ pip install Flask
 Then clone or download the server:
 
 ```
-$ git clone https://github.com/mlightning/flask-video-streaming
+$ git clone https://github.com/mlightning3/flask-video-streaming
 ```
 
 Now connect a camera to the computer, and run:
@@ -37,11 +37,18 @@ You should now have a live status update from the Flask server in the terminal.
 To connect to it, load up a web browser (any except IE) and go to 127.0.0.1:5000
 and you should see a live feed from the camera.
 
+![Connecting locally on Raspberry Pi](documentation/images/connect_local.png)
+
 Now to set up the database for saving pictures and video, go to 127.0.0.1:5000/database
 and click on the "New Database" button. Now you are all set to save pictures and videos.
 
+![Setting up database](documentation/images/database_editor.png)
+
 To use this, point the browser of the device you want to view your stream from
 to the IP address of the computer running the server with :5000 appended to the end.
+
+![Connecting remotely](documentation/images/connect_remote.jpeg)
+
 You can have multiple devices viewing the stream, but that hasn't been tested as
 throughly as when just one device is viewing the stream.
 
