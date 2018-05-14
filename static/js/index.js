@@ -1,4 +1,5 @@
 capture_status = true;
+light_status = false;
 
 var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
@@ -79,6 +80,48 @@ $('#snapshot').click(function() {
 	    }
 	});
     }
+});
+
+// Sends value of the light button back to flask server
+$('#light').click(function() {
+    light_status = !light_status;
+	$('#light_status').val(light_status);      // Put our state into the html
+	url_params = $("#Form3").serializeArray(); // Grab the changes we make to the html
+
+	if(!light_status){
+	    $(this).removeClass('indigo');
+	    $(this).addClass('red');
+	}else{
+	    $(this).removeClass('red');
+	    $(this).addClass('indigo');
+	}
+
+	$.ajax({
+	    url: '/light',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+// Sends slider value back to flask server
+var value;
+$( "#slider" ).roundSlider({
+  sliderType: "min-range",
+  change: function(){
+    var obj1 =  $("#slider").data("roundSlider");
+    value = obj1.getValue();
+    $.getJSON('/slidervalue', {
+        a:value
+    });
+  });
 });
 
 

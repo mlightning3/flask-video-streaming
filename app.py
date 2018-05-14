@@ -86,6 +86,27 @@ def video_capture():
         g.db.commit()
     return str(cam.take_video(filename, status))
 
+## Changes the brightness of the light on the camera
+#
+# This is mainly listening to a slider on the webpage and shouldn't really be used by other things
+@app.route('/slidervalue')
+def slide():
+    value = request.args.get('value')
+    # TODO: Change the light level
+    print("Light: ", value)
+
+## Toggles the camera's light on and off
+@app.route('/light', methods=['GET'])
+def light():
+    status = request.args.get('status')
+    if status == 'true' or status == 'True':
+        print("Light: ON")
+        # TODO: turn light on
+    if status == 'false' or status == 'False':
+        print("Light: OFF")
+        # TODO: turn light off
+    return str(400)
+
 # Way to edit database from web browser
 @app.route('/database')
 def edit_database():

@@ -8,6 +8,11 @@
 	  <div class="container center">
     <h1>Video Streaming</h1>
     <img src="{{ url_for('video_feed') }}">
+	<div id="slider"></div>
+	<form id="Form3">
+		<input id="light_status" name="status" type="hidden" value="false"></input>
+		<button type="button" id="light" class="indigo waves-effect waves-light btn" value="null">Toggle Light</button>
+	</form>
     <form id="Form">
 	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
 	    <button type=button id="snapshot" class="indigo waves-effect waves-light btn" value="null">Take Snapshot</button>
