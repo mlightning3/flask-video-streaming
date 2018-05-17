@@ -1,6 +1,35 @@
 flask-video-streaming
 =====================
-A small camera streaming server and project for the University of Michigan.
+A small camera streaming server and project for the University of Michigan. Built using
+Python Flask and JQuery.
+
+The main idea behind this project to to take advantage of the inexpensive hardware that
+has come on the market recently, and use it to stream video to hardware everyone already
+uses. For example, you could put a camera on a Raspberry Pi strapped onto an RC car, and
+stream the video back to your phone for an inexpensive FPV vehicle.
+
+### Features
+
+* Real-Time video streaming
+* Picture taking
+* Video Recording
+* Downloading saved pictures and video
+* Adding/Removing pictures and video from listing
+
+### Hardware Requirements
+
+* 1Ghz processor
+* 512Mb RAM
+* ?? Space for all the videos and pictures
+
+Runs on Raspberry Pi Zero W, 3, 3B+ and whatever x86 box you have around. The video
+saving will benifit from having multiple cores and a fast connection to your storage
+medium.
+
+Works with any camera OpenCV can talk to (webcams, PlayStaion Eye, etc.), and
+has support of the Raspberry Pi camera (though this hasn't been tested in a while).
+Higher resolution cameras will require a stronger processor to keep the stream going
+at a resonable rate.
 
 Installing and Setup
 ====================
