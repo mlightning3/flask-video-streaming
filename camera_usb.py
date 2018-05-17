@@ -1,9 +1,15 @@
+##
+# This class does all the work of pulling images off of the camera and sending them to the server, as well as saving off
+# pictures and videos.
+#
+##
+
 import time
 import io
 import threading
 import cv2
 import numpy as np
-import queue # When running on the Tinkerboard/Debian 9 or less, use queue and queue.Queue()
+import queue
 
 avg = np.repeat(0.0, 100)
 
@@ -44,7 +50,7 @@ class Camera(object):
             print(str(e))
             return 401
 
-    def take_video(self, filename, status): # I took this from Brandon's code, so that is why this changed
+    def take_video(self, filename, status): 
         if(status == "false" or status == False):
             Camera.prev_status = False
             Camera.status = True
