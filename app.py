@@ -114,8 +114,9 @@ def video_capture():
         g.db.commit()
     return str(cam.take_video(filename, status))
 
-## Changes the brightness of the light on the camera
+## Slider Value Route
 #
+# Changes the brightness of the light on the camera
 # This is mainly listening to a slider on the webpage and shouldn't really be used by other things
 @app.route('/slidervalue', methods=['GET'])
 def slide():
@@ -124,7 +125,9 @@ def slide():
     print("Light: ", value)
     return str(400)
 
-## Toggles the camera's light on and off
+## Light Route
+#
+# Toggles the camera's light on and off
 @app.route('/light', methods=['GET'])
 def light():
     status = request.args.get('status')

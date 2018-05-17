@@ -15,6 +15,7 @@ stream the video back to your phone for an inexpensive FPV vehicle.
 * Video Recording
 * Downloading saved pictures and video
 * Adding/Removing pictures and video from listing
+* Controlling camera light
 
 ### Hardware Requirements
 
