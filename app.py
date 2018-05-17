@@ -89,11 +89,12 @@ def video_capture():
 ## Changes the brightness of the light on the camera
 #
 # This is mainly listening to a slider on the webpage and shouldn't really be used by other things
-@app.route('/slidervalue')
+@app.route('/slidervalue', methods=['GET'])
 def slide():
     value = request.args.get('value')
     # TODO: Change the light level
     print("Light: ", value)
+    return str(400)
 
 ## Toggles the camera's light on and off
 @app.route('/light', methods=['GET'])

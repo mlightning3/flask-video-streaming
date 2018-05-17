@@ -112,16 +112,13 @@ $('#light').click(function() {
 });
 
 // Sends slider value back to flask server
-var value;
-$( "#slider" ).roundSlider({
-  sliderType: "min-range",
-  change: function(){
-    var obj1 =  $("#slider").data("roundSlider");
-    value = obj1.getValue();
-    $.getJSON('/slidervalue', {
-        a:value
-    });
-  });
+var valueOfSlider;
+$( "#slider" ).slider({
+    change: function(){
+        valueOfSlider = $( this ).slider( "value" );
+        $.getJSON('/slidervalue', {
+            value:valueOfSlider
+        });
+    }
 });
-
 
