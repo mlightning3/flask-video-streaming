@@ -107,6 +107,9 @@ class Camera(object):
                 ret, frame = (-1, blank_frame)
             if ret == False:
                 frame = blank_frame
+            else:
+                res = cv2.resize(frame,None,fx=.25,fy=.25, interpolation = cv2.INTER_AREA) # Resizes the image
+                frame = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(frame)
