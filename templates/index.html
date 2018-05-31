@@ -8,6 +8,14 @@
 	  <div class="container center">
     <h1>Video Streaming</h1>
     <img src="{{ url_for('video_feed') }}">
+	<form id="Form4">
+		<input id="gray_status" name="status" type="hidden" value="false"></input>
+		<button type="button" id="grayscale" class="indigo waves-effect waves-light btn" value="null">Toggle Grayscale</button>
+	</form>
+	<form id="Form5">
+		<input id="resolution_status" name="status" type="hidden" value="false"></input>
+		<button type="button" id="resolution" class="indigo waves-effect waves-light btn" value="null">Toggle Resolution</button>
+	</form>
     <form id="Form">
 	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
 	    <button type=button id="snapshot" class="indigo waves-effect waves-light btn" value="null">Take Snapshot</button>

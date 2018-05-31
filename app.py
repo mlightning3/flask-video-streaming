@@ -114,6 +114,22 @@ def video_capture():
         g.db.commit()
     return str(cam.take_video(filename, status))
 
+## Grayscale Toggle Route
+#
+# Changes the video feed between grayscale and color
+@app.route('/grayscale', methods=['GET'])
+def grayscale():
+    status = request.args.get('status')
+    return str(cam.set_grayscale(status))
+
+## Resolution Toggle Route
+#
+# Changes between low and high resolution video feeds
+@app.route('/resolution', methods=['GET'])
+def resolution():
+    status = request.args.get('status')
+    return str(cam.drop_resolution(status))
+
 ## Database Editor Route
 #
 # Way to edit database from web browser

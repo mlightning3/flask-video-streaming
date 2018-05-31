@@ -26,6 +26,8 @@ class Camera(object):
     frame_height = 0
     ontime = 0 # When we started recording video
     totaltime = 0 # Amount of time we recorded video
+    grayscale = False
+    low_resolution = False
 
     def initialize(self):
         if Camera.thread is None:
@@ -61,6 +63,20 @@ class Camera(object):
             Camera.totaltime = time.time() - Camera.ontime
         Camera.filename = filename
         print(Camera.status)
+
+    def set_grayscale(self, status):
+        if(status == "false" or status == False):
+            Camera.grayscale = True
+        if(status == "true" or status == True):
+            Camera.grayscale = False
+        return 400
+
+    def drop_resolution(self, status):
+        if(status == "false" or status == False):
+            Camera.low_resolution = True
+        if(status == "true" or status == True):
+            Camera.low_resolution = False
+        return 400
 
     #=========================
     # Video writing thread
@@ -98,6 +114,14 @@ class Camera(object):
         cls.fps = int(camera.get(5))
         cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
         cls.frame_height = int(camera.get(4))
+
+        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+        cls.frame_width = int(camera.get(3))  # These pull the camera size from what opencv loads
+        cls.frame_height = int(camera.get(4))
+        print('Width:', cls.frame_width, 'Height:', cls.frame_height)
+
         blank_frame = np.zeros((cls.frame_height, cls.frame_width, 3), np.uint8) # Creates a black image when there is nothing on the camera
         fcount = 0
         while(True):
@@ -108,8 +132,11 @@ class Camera(object):
             if ret == False:
                 frame = blank_frame
             else:
-                res = cv2.resize(frame,None,fx=.25,fy=.25, interpolation = cv2.INTER_AREA) # Resizes the image
-                frame = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+                if(cls.low_resolution == True):
+                    frame = cv2.resize(frame,None,fx=.5,fy=.5, interpolation = cv2.INTER_AREA) # Resizes the image
+                if(cls.grayscale == True):
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                #frame = res
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(frame)

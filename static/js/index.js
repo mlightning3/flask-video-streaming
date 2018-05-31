@@ -1,4 +1,6 @@
 capture_status = true;
+gray_status = true;
+resolution_status = true;
 
 var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
@@ -83,4 +85,58 @@ $('#snapshot').click(function() {
     }
 });
 
+$('#grayscale').click(function() {
+    gray_status = !gray_status;
+	$('#gray_status').val(gray_status);      // Put our state into the html
+	url_params = $("#Form4").serializeArray(); // Grab the changes we make to the html
 
+	if(!gray_status){
+	    $(this).removeClass('indigo');
+	    $(this).addClass('red');
+	}else{
+	    $(this).removeClass('red');
+	    $(this).addClass('indigo');
+	}
+
+	$.ajax({
+	    url: '/grayscale',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+$('#resolution').click(function() {
+    resolution_status = !resolution_status;
+	$('#resolution_status').val(resolution_status);      // Put our state into the html
+	url_params = $("#Form5").serializeArray(); // Grab the changes we make to the html
+
+	if(!resolution_status){
+	    $(this).removeClass('indigo');
+	    $(this).addClass('red');
+	}else{
+	    $(this).removeClass('red');
+	    $(this).addClass('indigo');
+	}
+
+	$.ajax({
+	    url: '/resolution',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
