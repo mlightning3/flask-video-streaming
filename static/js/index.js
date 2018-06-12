@@ -4,7 +4,7 @@ var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
 
 // Records video, flips state of button and sends state of button back to server to toggle start stop
-$('#video_capture').click(function() {
+$('#video_capture').on('click touch', function() {
     url_params = $("#Form2").serializeArray();
     filename = url_params[0].value;
     console.log(capture_status);
@@ -53,7 +53,7 @@ $('#video_capture').click(function() {
 });
 
 // Takes a picture when button is pressed
-$('#snapshot').click(function() {
+$('#snapshot').on('click touch', function() {
     url_params = $("#Form").serializeArray();
     filename = url_params[0].value;
 
