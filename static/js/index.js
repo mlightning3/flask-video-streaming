@@ -6,7 +6,7 @@ var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
 
 // Records video, flips state of button and sends state of button back to server to toggle start stop
-$('#video_capture').click(function() {
+$('#video_capture').on('click touch', function() {
     url_params = $("#Form2").serializeArray();
     filename = url_params[0].value;
     console.log(capture_status);
@@ -55,7 +55,7 @@ $('#video_capture').click(function() {
 });
 
 // Takes a picture when button is pressed
-$('#snapshot').click(function() {
+$('#snapshot').on('click touch', function() {
     url_params = $("#Form").serializeArray();
     filename = url_params[0].value;
 
@@ -85,7 +85,9 @@ $('#snapshot').click(function() {
     }
 });
 
-$('#grayscale').click(function() {
+// Changes the image between grayscale and normal
+// Should help latency by reducing the amount of data sent with image
+$('#grayscale').on('click touch', function() {
     gray_status = !gray_status;
 	$('#gray_status').val(gray_status);      // Put our state into the html
 	url_params = $("#Form4").serializeArray(); // Grab the changes we make to the html
@@ -113,7 +115,9 @@ $('#grayscale').click(function() {
 	});
 });
 
-$('#resolution').click(function() {
+// Changes between a scaled down image and normal
+// Should help latecy by reducing the amount of data sent with image
+$('#resolution').on('click touch', function() {
     resolution_status = !resolution_status;
 	$('#resolution_status').val(resolution_status);      // Put our state into the html
 	url_params = $("#Form5").serializeArray(); // Grab the changes we make to the html
