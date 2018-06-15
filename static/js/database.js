@@ -1,7 +1,7 @@
 var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
 
-$('#add').click(function() {
+$('#add').on('click touch', function() {
 	url_params = $("#Form").serialize();
 	//filename = formvals[0].value;
 	filename = $("#Form").serializeArray()[0].value;
@@ -32,7 +32,7 @@ $('#add').click(function() {
 	}
 });
 
-$('#remove').click(function() {
+$('#remove').on('click touch', function() {
 	url_params = $("#Form2").serialize();
 	//filename = formvals[0].value;
 	filename = $("#Form2").serializeArray()[0].value;
@@ -64,7 +64,7 @@ $('#remove').click(function() {
 	}
 });
 
-$('#new').click(function() {
+$('#new').on('click touch', function() {
 	$.ajax({
 		url: '/database/new',
 		type: 'GET',

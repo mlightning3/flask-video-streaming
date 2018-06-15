@@ -132,6 +132,7 @@ class Camera(object):
             if ret == False:
                 frame = blank_frame
             else:
+                tosave = frame
                 if(cls.low_resolution == True):
                     frame = cv2.resize(frame,None,fx=.5,fy=.5, interpolation = cv2.INTER_AREA) # Resizes the image
                 if(cls.grayscale == True):
@@ -139,7 +140,7 @@ class Camera(object):
                 #frame = res
             cls.frame = frame
             if cls.status == True:
-                cls.buff.put(frame)
+                cls.buff.put(tosave)
                 fcount = fcount + 1
             elif cls.status == False and cls.prev_status == True:
                 temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))

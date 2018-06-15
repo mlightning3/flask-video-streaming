@@ -17,25 +17,25 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "nlr:a:h", ["remove=", "add="])
     except getopt.GetoptError:
-        print "Unknown command, try -h for help"
+        print("Unknown command, try -h for help")
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print "-h for help"
-            print "-n for a new database"
-            print "-l for listing database"
-            print "-r <filename> for removing a file from the database"
-            print "-a <filename> for adding a file to the database"
+            print("-h for help")
+            print("-n for a new database")
+            print("-l for listing database")
+            print("-r <filename> for removing a file from the database")
+            print("-a <filename> for adding a file to the database")
             sys.exit()
         elif opt in ("-n"):
-            print "Creating a new database..."
+            print("Creating a new database...")
             init_db() # Calls this from app.py, where I intend to add most of this functionality 
-            print "Done"
+            print("Done")
             sys.exit()
         elif opt in ("-l"):
             db = sqlite3.connect(DATABASE)
             for row in db.execute('SELECT date, fileName FROM media ORDER BY id ASC'):
-                print row
+                print(row)
             sys.exit()
         elif opt in ("-r", "--remove"):
             filename = arg
@@ -55,7 +55,7 @@ def main(argv):
                 db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
                 db.commit()
                 sys.exit()
-            print "File does not exist, or is not in the media folder"
+            print("File does not exist, or is not in the media folder")
             sys.exit()
         else:
             sys.exit()

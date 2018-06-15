@@ -143,8 +143,8 @@ def edit_database():
 # Adds a file to the database, so it will appear on the media list
 @app.route('/database/add', methods=['GET'])
 def add_to_database():
-    #filename = request.args.get('file')
-    filename = request.args.items()[0][1][:-1]
+    filename = request.args.get('filename')
+    #filename = request.args.items()[0][1][:-1]
     path = './media/' + filename
     if os.path.isfile(path) == True:
         date = datetime.date.today()
@@ -157,8 +157,8 @@ def add_to_database():
 # Removes a file from the database (but does not delete the file) so it no longer appears on the media list
 @app.route('/database/remove', methods=['GET'])
 def remove_from_database():
-    #filename = request.args.get('file')
-    filename = request.args.items()[0][1][:-1]
+    filename = request.args.get('filename')
+    #filename = request.args.items()[0][1][:-1]
     exist = g.db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
     if exist == 1:
         g.db.execute('DELETE FROM media WHERE fileName=?', [filename])
