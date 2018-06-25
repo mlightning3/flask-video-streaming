@@ -7,8 +7,11 @@ import datetime
 import os
 from contextlib import closing
 
+# Pi Camera Module
+from camera_pi_cv import Camera
+
 # USB Camera Module, requires cv2
-from camera_usb import Camera
+#from camera_usb import Camera
 
 app = Flask(__name__)
 
