@@ -112,11 +112,10 @@ class Camera(object):
         camera = cv2.VideoCapture(0)
         #camera.set(5, cls.fps)
         cls.fps = int(camera.get(5))
-        cls.frame_width = int(camera.get(3)) # These pull the camera size from what opencv loads
-        cls.frame_height = int(camera.get(4))
 
         camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        camera.set(15,-2) # Disable auto white balance
 
         cls.frame_width = int(camera.get(3))  # These pull the camera size from what opencv loads
         cls.frame_height = int(camera.get(4))
