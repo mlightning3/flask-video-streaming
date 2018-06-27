@@ -133,6 +133,29 @@ def resolution():
     status = request.args.get('status')
     return str(cam.drop_resolution(status))
 
+## Shutdown Pi Route
+#
+# Has the Pi shutdown if a valid key is given
+@app.route('shutdown', methods=['GET']
+def shutdown():
+    recievedkey = requtest.args.get('key')
+    if recievedkey == MASTERKEY:
+        os.system('sudo shutdown -h 1')
+        return 400
+    else:
+        return 401
+
+## Restart Pi Route
+#
+# Has the Pi restart if a valid key is given
+@app.route('reboot', methods=['GET']
+def reboot():
+    recievedkey = requtest.args.get('key')
+    if recievedkey == MASTERKEY:
+        os.system('sudo shutdown -r 1')
+        return 400
+    else:
+        return 401
 ## Database Editor Route
 #
 # Way to edit database from web browser
