@@ -6,6 +6,7 @@ import sqlite3
 import datetime
 import os
 from contextlib import closing
+import configparser
 
 # Pi Camera Module
 from camera_pi_cv import Camera
@@ -14,6 +15,14 @@ from camera_pi_cv import Camera
 #from camera_usb import Camera
 
 app = Flask(__name__)
+
+# Load settings from config file
+config = configparser.ConfigParser()
+config.read('config.txt')
+if 'KEYS' in config is True:
+    MASTERKEY = config['KEYS']['userkey']
+else:
+    MASTERKEY = 'developmentkey'
 
 # Database configuration
 DATABASE = './media/media.db'
@@ -156,6 +165,7 @@ def reboot():
         return 400
     else:
         return 401
+
 ## Database Editor Route
 #
 # Way to edit database from web browser
