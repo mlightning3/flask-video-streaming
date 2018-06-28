@@ -168,8 +168,6 @@ def reboot():
         return str(400)
     else:
         print('Invalid key')
-        print(recievedkey)
-        print(MASTERKEY)
         return str(401)
 
 ## Database Editor Route
