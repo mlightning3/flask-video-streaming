@@ -19,9 +19,9 @@ app = Flask(__name__)
 # Load settings from config file
 config = configparser.ConfigParser()
 config.read('config.txt')
-if 'KEYS' in config is True:
+try:
     MASTERKEY = config['KEYS']['userkey']
-else:
+except Exception as e:
     MASTERKEY = 'developmentkey'
 
 # Database configuration
@@ -145,26 +145,32 @@ def resolution():
 ## Shutdown Pi Route
 #
 # Has the Pi shutdown if a valid key is given
-@app.route('shutdown', methods=['GET']
+@app.route('/shutdown', methods=['GET'])
 def shutdown():
-    recievedkey = requtest.args.get('key')
+    recievedkey = request.args.get('key')
     if recievedkey == MASTERKEY:
         os.system('sudo shutdown -h 1')
-        return 400
+        print('Shutting down ...')
+        return str(400)
     else:
-        return 401
+        print('Invalid key')
+        return str(401)
 
 ## Restart Pi Route
 #
 # Has the Pi restart if a valid key is given
-@app.route('reboot', methods=['GET']
+@app.route('/reboot', methods=['GET'])
 def reboot():
-    recievedkey = requtest.args.get('key')
+    recievedkey = request.args.get('key')
     if recievedkey == MASTERKEY:
         os.system('sudo shutdown -r 1')
-        return 400
+        print('Rebooting ...')
+        return str(400)
     else:
-        return 401
+        print('Invalid key')
+        print(recievedkey)
+        print(MASTERKEY)
+        return str(401)
 
 ## Database Editor Route
 #
