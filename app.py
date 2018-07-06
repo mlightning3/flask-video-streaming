@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response, request, g, send_from_directory
+from flask import Flask, render_template, Response, request, g, send_from_directory, json
 
 # For database
 import sqlite3
@@ -129,6 +129,25 @@ def grayscale():
 def resolution():
     status = request.args.get('status')
     return str(cam.drop_resolution(status))
+
+## Database Retrieval Route
+#
+# Sends the information in the database in JSON format
+@app.route('/get_database')
+def get_database():
+    entries = g.db.execute('SELECT date, fileName FROM media ORDER BY id ASC')
+    empList = []
+    for emp in entries:
+        empDict = {
+            'date': emp[0],
+            'filename': emp[1]}
+        empList.append(empDict)
+    response = app.response_class(
+        response=json.dumps(empList),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
 
 ## Database Editor Route
 #
