@@ -34,10 +34,7 @@ class Camera(object):
     manual_focus = 0.5
     manual_focus_changed = False
 
-    def initialize(self, cameraType = "default"):
-        Camera.type = cameraType
-        if(Camera.type == "LiquidLens"):
-            Camera.autofocus = 1
+    def initialize(self):
         if Camera.thread is None:
             # start background frame thread
             Camera.thread = threading.Thread(target=self._thread)
@@ -46,6 +43,15 @@ class Camera(object):
             # wait until frames start to be available
             while self.frame is None:
                 time.sleep(0)
+
+    ## Sets the camera type
+    #
+    # Given the type of camera, certain options will be enabled/disabled
+    # @param cameraType String describing the type of camera
+    def set_cameratype(self, cameraType):
+        Camera.type = cameraType
+        if (Camera.type == "LiquidLens"):
+            Camera.autofocus = 1
 
     def get_frame(self):
         Camera.last_access = time.time()
@@ -86,8 +92,11 @@ class Camera(object):
             Camera.low_resolution = False
         return 400
 
+    ## Toggles the autofocus
+    #
+    # ONLY WORKS ON SUPPORTED CAMERAS
     def change_autofocus(self, status):
-        if(type == "LiquidLens"):
+        if(Camera.type == "LiquidLens"):
             if (status == "false" or status == False):
                 Camera.autofocus = 1
                 Camera.autofocus_changed = True
@@ -98,8 +107,13 @@ class Camera(object):
         else:
             return 403
 
+    ## Steps the focus in a direction
+    #
+    # Moves the plane of focus by 0.05 in either a positive or negative direction
+    # ONLY WORKS ON SUPPORTED CAMERAS
+    # @param direction Should be either a positive or negative number
     def step_focus(self, direction):
-        if(type == "LiquidLens"):
+        if(Camera.type == "LiquidLens"):
             if(direction > 0):
                 Camera.manual_focus += 0.05
                 Camera.manual_focus_changed = True
@@ -110,6 +124,22 @@ class Camera(object):
                 Camera.manual_focus = 1
             elif(Camera.manual_focus < 0):
                 Camera.manual_focus = 0
+            return 400
+        else:
+            return 403
+
+    ## Sets the focus to a specific value
+    #
+    # ONLY WORKDS ON SUPPORTED CAMERAS
+    # @param value Should be a value between 0 and 1, above or below that will set to 0 or 1
+    def set_focus(self, value):
+        if(Camera.type == "LiquidLens"):
+            Camera.manual_focus = value
+            if (Camera.manual_focus > 1):
+                Camera.manual_focus = 1
+            elif (Camera.manual_focus < 0):
+                Camera.manual_focus = 0
+            Camera.manual_focus_changed = True
             return 400
         else:
             return 403
@@ -146,12 +176,13 @@ class Camera(object):
         #    Video Settings      
         #=========================       
         camera = cv2.VideoCapture(0)
-        #camera.set(5, cls.fps)
         cls.fps = int(camera.get(5))
 
         camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        camera.set(15,-2) # Disable auto white balance
+        #camera.set(15, -5) # Setting exposeure value, which should turn off auto-white balance
+        #camera.set(21, 0) # Turn off auto exposure
+        #camera.set(cv2.CAP_PROP_GAIN , 1)
         camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus) # Set autofocus
 
         cls.frame_width = int(camera.get(3))  # These pull the camera size from what opencv loads

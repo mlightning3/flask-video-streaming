@@ -86,7 +86,8 @@ def gen(camera):
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-cam = Camera(CAMERA) # Set up camera passing along camera information from config
+cam = Camera()
+cam.set_cameratype(CAMERA) # Set up camera passing along camera information from config
 
 ## Video Feed Route
 #
@@ -154,6 +155,14 @@ def autofocus():
 def step_focus():
     direction = int(request.args.get('direction'))
     return str(cam.step_focus(direction))
+
+## Set Focus Value Route
+#
+# Sets the manual focus to a specific value. ONLY ON SUPPORTED CAMERAS
+@app.route('/set_focus', methods=['GET'])
+def set_focus():
+    value = float(request.args.get('value'))
+    return str(cam.set_focus(value))
 
 ## Database Retrieval Route
 #
