@@ -14,6 +14,7 @@ import queue
 avg = np.repeat(0.0, 100)
 
 class Camera(object):
+    type = "default" # String defining the camera, so we know what functionality it has
     thread = None  # background thread that reads frames from camera
     watcher = None # background thread that writes vidoes file
     frame = None  # current frame is stored here by background thread
@@ -28,8 +29,15 @@ class Camera(object):
     totaltime = 0 # Amount of time we recorded video
     grayscale = False
     low_resolution = False
+    autofocus = 0
+    autofocus_changed = False
+    manual_focus = 0.5
+    manual_focus_changed = False
 
-    def initialize(self):
+    def initialize(self, cameraType = "default"):
+        Camera.type = cameraType
+        if(Camera.type == "LiquidLens"):
+            Camera.autofocus = 1
         if Camera.thread is None:
             # start background frame thread
             Camera.thread = threading.Thread(target=self._thread)
@@ -78,6 +86,34 @@ class Camera(object):
             Camera.low_resolution = False
         return 400
 
+    def change_autofocus(self, status):
+        if(type == "LiquidLens"):
+            if (status == "false" or status == False):
+                Camera.autofocus = 1
+                Camera.autofocus_changed = True
+            if (status == "true" or status == True):
+                Camera.autofocus = 0
+                Camera.autofocus_changed = True
+            return 400
+        else:
+            return 403
+
+    def step_focus(self, direction):
+        if(type == "LiquidLens"):
+            if(direction > 0):
+                Camera.manual_focus += 0.05
+                Camera.manual_focus_changed = True
+            elif(direction < 0):
+                Camera.manual_focus -= 0.05
+                Camera.manual_focus_changed = True
+            if(Camera.manual_focus > 1):
+                Camera.manual_focus = 1
+            elif(Camera.manual_focus < 0):
+                Camera.manual_focus = 0
+            return 400
+        else:
+            return 403
+
     #=========================
     # Video writing thread
     #
@@ -116,6 +152,7 @@ class Camera(object):
         camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         camera.set(15,-2) # Disable auto white balance
+        camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus) # Set autofocus
 
         cls.frame_width = int(camera.get(3))  # These pull the camera size from what opencv loads
         cls.frame_height = int(camera.get(4))
@@ -136,6 +173,14 @@ class Camera(object):
                     frame = cv2.resize(frame,None,fx=.5,fy=.5, interpolation = cv2.INTER_AREA) # Resizes the image
                 if(cls.grayscale == True):
                     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                if(cls.autofocus_changed == True):
+                    camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus)
+                    cls.autofocus_changed = False
+                if(cls.manual_focus_changed == True):
+                    cls.autofocus = 0
+                    camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus)
+                    camera.set(cv2.CAP_PROP_FOCUS, cls.manual_focus)
+                    cls.manual_focus_changed = False
                 #frame = res
             cls.frame = frame
             if cls.status == True:

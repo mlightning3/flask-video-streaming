@@ -6,11 +6,20 @@ import sqlite3
 import datetime
 import os
 from contextlib import closing
+import configparser
 
 # USB Camera Module, requires cv2
 from camera_usb import Camera
 
 app = Flask(__name__)
+
+# Load settings from config file
+config = configparser.ConfigParser()
+config.read('config.txt')
+try:
+    CAMERA = config['SETTINGS']['camera']
+except Exception as e:
+    CAMERA = "default"
 
 # Database configuration
 DATABASE = './media/media.db'
@@ -77,7 +86,7 @@ def gen(camera):
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-cam = Camera()
+cam = Camera(CAMERA) # Set up camera passing along camera information from config
 
 ## Video Feed Route
 #
@@ -129,6 +138,22 @@ def grayscale():
 def resolution():
     status = request.args.get('status')
     return str(cam.drop_resolution(status))
+
+## Autofocus Toggle Route
+#
+# Changes between autofocus on and off. ONLY ON SUPPORTED CAMERAS
+@app.route('/autofocus', methods=['GET'])
+def autofocus():
+    status = request.args.get('status')
+    return str(cam.change_autofocus(status))
+
+## Step Focus Route
+#
+# Adjusts the manual focus up or down a step at a time. ONLY ON SUPPORTED CAMERAS
+@app.route('/step_focus', methods=['GET'])
+def step_focus():
+    direction = int(request.args.get('direction'))
+    return str(cam.step_focus(direction))
 
 ## Database Retrieval Route
 #
