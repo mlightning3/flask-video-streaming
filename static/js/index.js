@@ -1,6 +1,7 @@
 capture_status = true;
 gray_status = true;
 resolution_status = true;
+focus_status = true;
 
 var d = new Date();
 var today = d.getFullYear().toString() + "-" + (d.getMonth() + 1).toString() + "-" + d.getDate().toString();
@@ -132,6 +133,92 @@ $('#resolution').on('click touch', function() {
 
 	$.ajax({
 	    url: '/resolution',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+// Toggles the autofocus on supported cameras
+$('#autofocus').on('click touch', function() {
+    focus_status = !focus_status;
+	$('#focus_status').val(focus_status);      // Put our state into the html
+	url_params = $("#Form6").serializeArray(); // Grab the changes we make to the html
+
+	if(!focus_status){
+	    $(this).removeClass('indigo');
+	    $(this).addClass('red');
+	}else{
+	    $(this).removeClass('red');
+	    $(this).addClass('indigo');
+	}
+
+	$.ajax({
+	    url: '/autofocus',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+// Sets the focus back to the middle on supported cameras
+$('#set_focus').on('click touch', function() {
+	url_params = $("#Form7").serializeArray();
+
+	$.ajax({
+	    url: '/set_focus',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+// Steps the focus up on supported cameras
+$('#focus_pos').on('click touch', function() {
+	url_params = $("#Form8").serializeArray();
+
+	$.ajax({
+	    url: '/step_focus',
+	    data: url_params,
+	    type: 'GET',
+	    contentType:'application/json;charset=UTF-8',
+	    success: function(response) {
+		console.log(response);
+		console.log(JSON.stringify(url_params, null, '\t'));
+	    },
+	    error: function(error) {
+		    console.log(error.responseText);
+	    }
+	});
+});
+
+// Steps the focus down on supported cameras
+$('#focus_neg').on('click touch', function() {
+	url_params = $("#Form9").serializeArray();
+
+	$.ajax({
+	    url: '/step_focus',
 	    data: url_params,
 	    type: 'GET',
 	    contentType:'application/json;charset=UTF-8',
