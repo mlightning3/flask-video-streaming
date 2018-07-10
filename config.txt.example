@@ -1,0 +1,17 @@
+### Example configuration file for the server ###
+# The headings in brackets define sections of the file for different settings (aka, very much needed)
+
+## Main Settings ##
+
+[SETTINGS]
+
+# Here we set the camera type, which enables/disables features on the server depending on what the camera can support
+# If we don't set a value here, the server will go with "default"
+camera =
+
+## Access Settings ##
+
+[KEYS]
+
+# Here we can define a user key that could be used to let only certain people access things on the server
+userkey =
