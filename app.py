@@ -20,6 +20,10 @@ try:
     CAMERA = config['SETTINGS']['camera']
 except Exception as e:
     CAMERA = "default"
+try:
+    MASTERKEY = config['KEYS']['userkey']
+except Exception as e:
+    MASTERKEY = 'developmentkey'
 
 # Database configuration
 DATABASE = './media/media.db'
@@ -182,6 +186,34 @@ def get_database():
         mimetype='application/json'
     )
     return response
+
+## Shutdown Pi Route
+#
+# Has the Pi shutdown if a valid key is given
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    recievedkey = request.args.get('key')
+    if recievedkey == MASTERKEY:
+        os.system('sudo shutdown -h 1')
+        print('Shutting down ...')
+        return str(400)
+    else:
+        print('Invalid key')
+        return str(401)
+
+## Restart Pi Route
+#
+# Has the Pi restart if a valid key is given
+@app.route('/reboot', methods=['GET'])
+def reboot():
+    recievedkey = request.args.get('key')
+    if recievedkey == MASTERKEY:
+        os.system('sudo shutdown -r 1')
+        print('Rebooting ...')
+        return str(400)
+    else:
+        print('Invalid key')
+        return str(401)
 
 ## Database Editor Route
 #
