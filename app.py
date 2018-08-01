@@ -108,7 +108,10 @@ def video_feed():
 @app.route('/snapshot', methods=['GET'])
 def take_snapshot():
     filename = request.args.get('filename')
-    today = datetime.date.today()
+    filename.replace(" ", "_")
+    today = request.args.get('date')
+    if today is None:
+        today = datetime.date.today()
     full_filename = filename + ".jpg"
     g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
     g.db.commit()
@@ -121,8 +124,11 @@ def take_snapshot():
 def video_capture():
     status = request.args.get('status')
     filename = request.args.get('filename')
+    filename.replace(" ", "_")
     if status == 'true' or status == 'True': #Only when we are done saving a video do we add it to the database
-        today = datetime.date.today()
+        today = request.args.get('date')
+        if today is None:
+            today = datetime.date.today()
         full_filename = filename + ".avi"
         g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
         g.db.commit()
@@ -229,7 +235,7 @@ def edit_database():
 @app.route('/database/add', methods=['GET'])
 def add_to_database():
     filename = request.args.get('filename')
-    #filename = request.args.items()[0][1][:-1]
+    filename.replace(" ", "_")
     path = './media/' + filename
     if os.path.isfile(path) == True:
         date = datetime.date.today()
@@ -243,11 +249,12 @@ def add_to_database():
 @app.route('/database/remove', methods=['GET'])
 def remove_from_database():
     filename = request.args.get('filename')
-    #filename = request.args.items()[0][1][:-1]
+    filename.replace(" ", "_")
     exist = g.db.execute('SELECT EXISTS (SELECT 1 FROM media WHERE fileName=? LIMIT 1)', [filename]).fetchone()[0]
     if exist == 1:
         g.db.execute('DELETE FROM media WHERE fileName=?', [filename])
         g.db.commit()
+        os.remove('media/' + filename)
     return str(400)
 
 ## New Database Route
