@@ -28,8 +28,7 @@ saving will benifit from having multiple cores and a fast connection to your sto
 medium.
 
 Works with any camera OpenCV can talk to (webcams, PlayStaion Eye, etc.), and
-has support of the Raspberry Pi camera (though this is currently only
-supported on the mollydevice2 branch and will soon be rolled into the master).
+has support of the Raspberry Pi camera.
 Higher resolution cameras will require a stronger processor to keep the stream going
 at a resonable rate, though if the camera is supported by OpenCV then you can drop the
 resolution for weaker hardware.
@@ -51,6 +50,13 @@ the ability to control certain functions. Look at config.txt.example for how to
 format the file, and what options and settings are supported. Name the file you
 create config.txt and keep it in the same directory as app.py so the settings
 can be applied at runtime.
+
+Key requirements for install are:
+
+```
+Flask  >= 0.10.1
+OpenCV >= 3.0.0
+```
 
 ### Script Method
 
@@ -116,15 +122,9 @@ throughly as when just one device is viewing the stream.
 
 ### Manual Method
 
-Grab our key dependencies, Flask and OpenCV. If you are going to be running
-this on a Raspberry Pi, you may have to build OpenCV from source. The versions
-that we are looking for are:
-
-```
-Flask  >= 0.10.1
-OpenCV >= 3.0.0
-```
-
+OpenCV can be installed a couple of different ways, just make sure you have a
+version that will fit the requirements. (Instructions on building OpenCV will
+be added at a later point).
 Using pip, we should grab all the dependencies we need when we get Flask and a
 couple of other needed things:
 
@@ -167,10 +167,7 @@ Copyright
 =========
 University of Michigan 2017-2018
 
-Based on Miguel Grinberg's [video streaming with Flask](http://blog.miguelgrinberg.com/post/video-streaming-with-flask) 2014.
+All rights reserved.
 
-Licensed under the MIT license.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Based on Miguel Grinberg's [video streaming with Flask](http://blog.miguelgrinberg.com/post/video-streaming-with-flask) 2014 under the MIT license.
+[Link to Miguel's Github repo](https://github.com/miguelgrinberg/flask-video-streaming)

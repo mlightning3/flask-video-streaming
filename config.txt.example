@@ -7,6 +7,10 @@
 
 # Here we set the camera type, which enables/disables features on the server depending on what the camera can support
 # If we don't set a value here, the server will go with "default"
+# Currently supported cameras and their values are:
+# Raspberry Pi Camera : Pi or PiCamera
+# Cameras with adjustable focus : LiquidLens
+# OpenCV supported Cameras : default
 camera =
 
 ## Access Settings ##
