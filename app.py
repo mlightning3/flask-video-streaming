@@ -10,6 +10,7 @@ import configparser
 
 # USB Camera Module, requires cv2
 from camera_usb import Camera
+from camera_pi_cv import Camera as PiCamera
 
 app = Flask(__name__)
 
@@ -90,8 +91,12 @@ def gen(camera):
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-cam = Camera()
-cam.set_cameratype(CAMERA) # Set up camera passing along camera information from config
+# Set up our camera based on what was given in config file
+if CAMERA == "Pi" or CAMERA == "PiCamera":
+    cam = PiCamera()
+else:
+    cam = Camera()
+    cam.set_cameratype(CAMERA) # Set up camera passing along camera information from config
 
 ## Video Feed Route
 #
@@ -156,7 +161,10 @@ def resolution():
 @app.route('/autofocus', methods=['GET'])
 def autofocus():
     status = request.args.get('status')
-    return str(cam.change_autofocus(status))
+    if CAMERA == "LiquidLens":
+        return str(cam.change_autofocus(status))
+    else:
+        return str(403)
 
 ## Step Focus Route
 #
@@ -164,7 +172,10 @@ def autofocus():
 @app.route('/step_focus', methods=['GET'])
 def step_focus():
     direction = int(request.args.get('direction'))
-    return str(cam.step_focus(direction))
+    if CAMERA == "LiquidLens":
+        return str(cam.step_focus(direction))
+    else:
+        return str(403)
 
 ## Set Focus Value Route
 #
@@ -172,7 +183,10 @@ def step_focus():
 @app.route('/set_focus', methods=['GET'])
 def set_focus():
     value = float(request.args.get('value'))
-    return str(cam.set_focus(value))
+    if CAMERA == "LiquidLens":
+        return str(cam.set_focus(value))
+    else:
+        return str(403)
 
 ## Database Retrieval Route
 #
