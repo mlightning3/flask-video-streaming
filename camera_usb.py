@@ -61,7 +61,7 @@ class Camera(object):
     def take_snapshot(self, filename):
         try:
             cv2.imwrite('./media/' + filename + ".jpg", self.frame)
-            return 400
+            return 200
         except Exception as e:
             print(str(e))
             return 401
@@ -83,14 +83,14 @@ class Camera(object):
             Camera.grayscale = True
         if(status == "true" or status == True):
             Camera.grayscale = False
-        return 400
+        return 200
 
     def drop_resolution(self, status):
         if(status == "false" or status == False):
             Camera.low_resolution = True
         if(status == "true" or status == True):
             Camera.low_resolution = False
-        return 400
+        return 200
 
     ## Toggles the autofocus
     #
@@ -103,7 +103,7 @@ class Camera(object):
             if (status == "true" or status == True):
                 Camera.autofocus = 0
                 Camera.autofocus_changed = True
-            return 400
+            return 200
         else:
             return 403
 
@@ -124,7 +124,7 @@ class Camera(object):
                 Camera.manual_focus = 1
             elif(Camera.manual_focus < 0):
                 Camera.manual_focus = 0
-            return 400
+            return 200
         else:
             return 403
 
@@ -140,7 +140,7 @@ class Camera(object):
             elif (Camera.manual_focus < 0):
                 Camera.manual_focus = 0
             Camera.manual_focus_changed = True
-            return 400
+            return 200
         else:
             return 403
 

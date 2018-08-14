@@ -69,7 +69,7 @@ class Camera(object):
     def take_snapshot(self, filename):
         try:
             cv2.imwrite('./media/' + filename + ".jpg", self.frame)
-            return 400
+            return 200
         except Exception as e:
             print(str(e))
             return 401
@@ -90,14 +90,14 @@ class Camera(object):
             Camera.grayscale = True
         if (status == "true" or status == True):
             Camera.grayscale = False
-        return 400
+        return 200
 
     def drop_resolution(self, status):
         if (status == "false" or status == False):
             Camera.low_resolution = True
         if (status == "true" or status == True):
             Camera.low_resolution = False
-        return 400
+        return 200
 
     # =========================
     # Video capture thread

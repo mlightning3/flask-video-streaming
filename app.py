@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response, request, g, send_from_directory, json
+from flask import Flask, render_template, Response, abort, request, g, send_from_directory, json
 
 # For database
 import sqlite3
@@ -120,7 +120,11 @@ def take_snapshot():
     full_filename = filename + ".jpg"
     g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
     g.db.commit()
-    return str(cam.take_snapshot(filename))
+    result = cam.take_snapshot(filename)
+    if result == 200:
+        return str(200)
+    else:
+        abort(result)
 
 ## Video Capture Route
 #
@@ -137,7 +141,11 @@ def video_capture():
         full_filename = filename + ".avi"
         g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [today, full_filename]) # Inserts information into the database
         g.db.commit()
-    return str(cam.take_video(filename, status))
+    result = cam.take_video(filename, status)
+    if result == 200:
+        return str(200)
+    else:
+        abort(result)
 
 ## Grayscale Toggle Route
 #
@@ -145,7 +153,11 @@ def video_capture():
 @app.route('/grayscale', methods=['GET'])
 def grayscale():
     status = request.args.get('status')
-    return str(cam.set_grayscale(status))
+    result = cam.set_grayscale(status)
+    if result == 200:
+        return str(200)
+    else:
+        abort(result)
 
 ## Resolution Toggle Route
 #
@@ -153,7 +165,11 @@ def grayscale():
 @app.route('/resolution', methods=['GET'])
 def resolution():
     status = request.args.get('status')
-    return str(cam.drop_resolution(status))
+    result = cam.drop_resolution(status)
+    if result == 200:
+        return str(200)
+    else:
+        abort(result)
 
 ## Autofocus Toggle Route
 #
@@ -162,9 +178,13 @@ def resolution():
 def autofocus():
     status = request.args.get('status')
     if CAMERA == "LiquidLens":
-        return str(cam.change_autofocus(status))
+        result = cam.change_autofocus(status)
+        if result == 200:
+            return str(200)
+        else:
+            abort(result)
     else:
-        return str(403)
+        abort(403)
 
 ## Step Focus Route
 #
@@ -175,7 +195,7 @@ def step_focus():
     if CAMERA == "LiquidLens":
         return str(cam.step_focus(direction))
     else:
-        return str(403)
+        abort(403)
 
 ## Set Focus Value Route
 #
@@ -186,7 +206,7 @@ def set_focus():
     if CAMERA == "LiquidLens":
         return str(cam.set_focus(value))
     else:
-        return str(403)
+        abort(403)
 
 ## Database Retrieval Route
 #
@@ -214,12 +234,16 @@ def get_database():
 def shutdown():
     recievedkey = request.args.get('key')
     if recievedkey == MASTERKEY:
-        os.system('sudo shutdown -h 1')
-        print('Shutting down ...')
-        return str(400)
+        try:
+            os.system('sudo shutdown -h 1')
+            print('Shutting down ...')
+            return str(200)
+        except os.error:
+            print('Error with shutdown')
+            abort(500)
     else:
         print('Invalid key')
-        return str(401)
+        abort(401)
 
 ## Restart Pi Route
 #
@@ -228,12 +252,16 @@ def shutdown():
 def reboot():
     recievedkey = request.args.get('key')
     if recievedkey == MASTERKEY:
-        os.system('sudo shutdown -r 1')
-        print('Rebooting ...')
-        return str(400)
+        try:
+            os.system('sudo shutdown -r 1')
+            print('Rebooting ...')
+            return str(200)
+        except os.error:
+            print('Error with reboot')
+            abort(500)
     else:
         print('Invalid key')
-        return str(401)
+        abort(401)
 
 ## Database Editor Route
 #
@@ -255,7 +283,7 @@ def add_to_database():
         date = datetime.date.today()
         g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
         g.db.commit()
-    return str(400)
+    return str(200)
 
 ## Remove From Database Route
 #
@@ -269,7 +297,7 @@ def remove_from_database():
         g.db.execute('DELETE FROM media WHERE fileName=?', [filename])
         g.db.commit()
         os.remove('media/' + filename)
-    return str(400)
+    return str(200)
 
 ## New Database Route
 #
@@ -277,7 +305,7 @@ def remove_from_database():
 @app.route('/database/new', methods=['GET'])
 def new_database():
     init_db()
-    return str(400)
+    return str(200)
 
 ## Media Downloading Route
 #
