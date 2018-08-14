@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, Response, request, g, send_from_directory, json
+from flask import Flask, render_template, Response, abort, request, g, send_from_directory, json
 
 # For database
 import sqlite3
@@ -212,19 +212,22 @@ def get_database():
 # Gets server log and system log for debugging
 @app.route('/logs', methods=['GET'])
 def fetch_logs():
-    os.system('sudo dmesg > system.log')
-    syslog = open('system.log', 'r')
-    logdict = {
-        'System' : syslog.read()
-    }
-    logs = []
-    logs.append(logdict)
-    response = app.response_class(
-        response=json.dumps(logs),
-        status=200,
-        mimetype='application/json'
-    )
-    return response
+    try:
+        os.system('sudo dmesg > system.log')
+        syslog = open('system.log', 'r')
+        logdict = {
+            'System' : syslog.read()
+        }
+        logs = []
+        logs.append(logdict)
+        response = app.response_class(
+            response=json.dumps(logs),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    except os.error:
+        abort(500)
 
 ## Shutdown Pi Route
 #
