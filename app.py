@@ -124,7 +124,7 @@ def take_snapshot():
     if result == 200:
         return str(200)
     else:
-        abort(result)
+        return Response('Error with snapshot', status=result)
 
 ## Video Capture Route
 #
@@ -145,7 +145,7 @@ def video_capture():
     if result == 200:
         return str(200)
     else:
-        abort(result)
+        return Response('Error with recording video', status=result)
 
 ## Grayscale Toggle Route
 #
@@ -157,7 +157,7 @@ def grayscale():
     if result == 200:
         return str(200)
     else:
-        abort(result)
+        return Response('Error with grayscale', status=result)
 
 ## Resolution Toggle Route
 #
@@ -169,7 +169,7 @@ def resolution():
     if result == 200:
         return str(200)
     else:
-        abort(result)
+        return Response('Error with resolution', status=result)
 
 ## Autofocus Toggle Route
 #
@@ -182,9 +182,9 @@ def autofocus():
         if result == 200:
             return str(200)
         else:
-            abort(result)
+            return Response('Error with autofocus', status=result)
     else:
-        abort(403)
+        return Response('Autofocus not supported', status=403)
 
 ## Step Focus Route
 #
@@ -195,7 +195,7 @@ def step_focus():
     if CAMERA == "LiquidLens":
         return str(cam.step_focus(direction))
     else:
-        abort(403)
+        return Response('Changing focus not supported', status=403)
 
 ## Set Focus Value Route
 #
@@ -206,7 +206,7 @@ def set_focus():
     if CAMERA == "LiquidLens":
         return str(cam.set_focus(value))
     else:
-        abort(403)
+        return Response('Changing focus not supported', status=403)
 
 ## Database Retrieval Route
 #
@@ -240,10 +240,10 @@ def shutdown():
             return str(200)
         except os.error:
             print('Error with shutdown')
-            abort(500)
+            return Response('Server unable to shutdown', status=500)
     else:
         print('Invalid key')
-        abort(401)
+        return Response('Invalid key', status=401)
 
 ## Restart Pi Route
 #
@@ -258,10 +258,10 @@ def reboot():
             return str(200)
         except os.error:
             print('Error with reboot')
-            abort(500)
+            return Response('Server unable to reboot', status=500)
     else:
         print('Invalid key')
-        abort(401)
+        return Response('Invalid key', status=401)
 
 ## Database Editor Route
 #
