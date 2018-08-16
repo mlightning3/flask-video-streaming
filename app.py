@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask, render_template, Response, abort, request, g, send_from_directory, json
+import logging
 
 # For database
 import sqlite3
@@ -236,12 +237,15 @@ def fetch_logs():
         os.system('sudo dmesg > system.log')
         syslog = open('system.log', 'r')
         serverlog = open('server.log', 'r')
-        logdict = {
-            'System' : syslog.read(),
-            'Server' : serverlog.read()
+        systemdict = {
+            'System' : syslog.read()
+        }
+        serverdict = {
+            'Server': serverlog.read()
         }
         logs = []
-        logs.append(logdict)
+        logs.append(systemdict)
+        logs.append(serverdict)
         response = app.response_class(
             response=json.dumps(logs),
             status=200,
@@ -342,4 +346,5 @@ def send_media(path):
 #
 # This gets everything going well called by Python. Needed to get Flask set up properly
 if __name__ == '__main__':
+    logging.basicConfig(filename="server.log", level=logging.DEBUG)
     app.run(host='0.0.0.0', debug=True, threaded=True)

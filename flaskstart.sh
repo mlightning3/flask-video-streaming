@@ -11,4 +11,4 @@
 source ~/.profile
 workon cv3
 cd ~/projects/umich/flask-video-streaming
-python app.py > server.log
+python app.py
