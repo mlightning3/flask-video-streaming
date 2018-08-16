@@ -227,6 +227,28 @@ def get_database():
     )
     return response
 
+## Log Fetching Route
+#
+# Gets server log and system log for debugging
+@app.route('/logs', methods=['GET'])
+def fetch_logs():
+    try:
+        os.system('sudo dmesg > system.log')
+        syslog = open('system.log', 'r')
+        logdict = {
+            'System' : syslog.read()
+        }
+        logs = []
+        logs.append(logdict)
+        response = app.response_class(
+            response=json.dumps(logs),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
+    except os.error:
+        abort(500)
+
 ## Shutdown Pi Route
 #
 # Has the Pi shutdown if a valid key is given
