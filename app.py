@@ -235,8 +235,10 @@ def fetch_logs():
     try:
         os.system('sudo dmesg > system.log')
         syslog = open('system.log', 'r')
+        serverlog = open('server.log', 'r')
         logdict = {
-            'System' : syslog.read()
+            'System' : syslog.read(),
+            'Server' : serverlog.read()
         }
         logs = []
         logs.append(logdict)
@@ -247,7 +249,7 @@ def fetch_logs():
         )
         return response
     except os.error:
-        abort(500)
+        return Response('Error reading logs', status=500)
 
 ## Shutdown Pi Route
 #
