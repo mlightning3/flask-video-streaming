@@ -72,7 +72,7 @@ class Camera(object):
             return 200
         except Exception as e:
             print(str(e))
-            return 401
+            return 500
 
     def take_video(self, filename, status):
         if (status == "false" or status == False):
