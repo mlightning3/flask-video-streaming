@@ -101,24 +101,7 @@ $ cd Path/To/Flask/Server/Directory
 $ ./flaskstart.sh
 ```
 
-Once the server is started, you will need to do some initial set-up.
-To connect to it, load up a web browser (any except IE) and go to 127.0.0.1:5000
-and you should see a live feed from the camera.
-
-![Connecting locally on Raspberry Pi](documentation/images/connect_local.png)
-
-Now to set up the database for saving pictures and video, go to 127.0.0.1:5000/database
-and click on the "New Database" button. Now you are all set to save pictures and videos.
-
-![Setting up database](documentation/images/database_editor.png)
-
-To use this, point the browser of the device you want to view your stream from
-to the IP address of the computer running the server with :5000 appended to the end.
-
-![Connecting remotely](documentation/images/connect_remote.jpeg)
-
-You can have multiple devices viewing the stream, but that hasn't been tested as
-throughly as when just one device is viewing the stream.
+Now follow up with first time setup.
 
 ### Manual Method
 
@@ -143,6 +126,10 @@ Now connect a camera to the computer, and run:
 ```
 $ python app.py
 ```
+
+Now follow up with first time setup.
+
+## First Time Setup
 
 You should now have a live status update from the Flask server in the terminal.
 To connect to it, load up a web browser (any except IE) and go to 127.0.0.1:5000
