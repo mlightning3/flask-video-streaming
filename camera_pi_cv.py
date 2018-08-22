@@ -5,6 +5,7 @@ import picamera
 from picamera.array import PiRGBArray
 import numpy as np
 import cv2
+import queue
 
 # Mode is the camera mode
 mode = 0
@@ -12,11 +13,18 @@ mode = 0
 
 class Camera(object):
     thread = None  # background thread that reads frames from camera
+    watcher = None # Thread for writing video
     frame = None  # current frame is stored here by background thread
     last_access = 0  # time of last client access to the camera
     filename = 'default';  # filename of any saved pictures or video
     grayscale = False  # setting grayscale on or not
     low_resolution = False  # # setting low resolution or not
+    status = False
+    prev_status = False
+    buff = queue.Queue()
+    writers = queue.Queue()
+    ontime = 0
+    totaltime = 0
 
     def initialize(self):
         if Camera.thread is None:
@@ -37,7 +45,7 @@ class Camera(object):
         if mode == 0:
             Camera.last_access = time.time()
             self.initialize()
-            return self.frame
+            return cv2.imencode('.jpg', self.frame)[1].tostring()
         elif mode == 1:
             # Checks last camera access, and initializes the camera (if it's not already running)
             Camera.last_access = time.time()
@@ -100,6 +108,25 @@ class Camera(object):
         return 200
 
     # =========================
+    # Video writing thread
+    #
+    # This takes the frames made by the other thread to write a video with a constant framerate
+    # Writes the buffer to file, then ends itself
+    #
+    # frames - Number of frames captured
+    # runtime - Amount of time spent recording
+    # fbuffer - Queue with buffer of frames that were recorded
+    # =========================
+    @classmethod
+    def _watcher(cls, frames, runtime, fbuffer):
+        fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
+        fps = frames / runtime
+        video = cv2.VideoWriter('./media/' + cls.filename + '.avi', fourcc, fps, (320, 240))
+        while fbuffer.empty() == False:
+            video.write(fbuffer.get())
+        video.release()
+
+    # =========================
     # Video capture thread
     #
     # This takes frames off of the camera and places it in frame
@@ -116,16 +143,25 @@ class Camera(object):
             #    camera.start_preview()
             time.sleep(2)
 
-            stream = io.BytesIO()
-            for foo in camera.capture_continuous(stream, 'jpeg',
-                                                 use_video_port=True):
+            fcount = 0
+
+            rawImage = PiRGBArray(camera, size=(320,240))
+            for frame in camera.capture_continuous(rawImage, format="bgr", use_video_port=True):
                 # store frame
-                stream.seek(0)
-                cls.frame = stream.read()
+                cls.frame = frame.array
+                if cls.status == True:
+                    cls.buff.put(frame.array)
+                    fcount = fcount + 1
+                elif cls.status == False and cls.prev_status == True:
+                    temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
+                    temp.start()
+                    cls.writers.put(temp)
+                    cls.buff = queue.Queue()
+                    fcount = 0
+                    cls.prev_status = False
 
                 # reset stream for next frame
-                stream.seek(0)
-                stream.truncate()
+                rawImage.truncate(0)
 
                 # if there hasn't been any clients asking for frames in
                 # the last 10 seconds stop the thread
