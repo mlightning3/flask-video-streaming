@@ -3,47 +3,125 @@
 	<script src="/static/js/jquery-ui.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/css/jquery-ui.min.css">
 	<link rel = "stylesheet" type = "text/css" href = "/static/css/materialize.min.css"/>
-  <head>
-    <title>Video Streaming Demonstration</title>
-  </head>
-  <body>
-	  <div class="container center">
+    <head>
+        <title>Video Streaming Demonstration</title>
+    </head>
+<body>
+<div class="container center">
     <h1>Video Streaming</h1>
     <img src="{{ url_for('video_feed') }}">
-	<div id="slider"></div>
-	<form id="Form3">
-		<input id="light_status" name="status" type="hidden" value="false"></input>
-		<button type="button" id="light" class="indigo waves-effect waves-light btn" value="null">Toggle Light</button>
-	</form>
+    <hr>
+    <table>
+        <tr>
+            <td>
+                <center>
+                    <form id="Form4">
+                        <input id="gray_status" name="status" type="hidden" value="false"></input>
+                        <button type="button" id="grayscale" class="indigo waves-effect waves-light btn" value="null">
+                            Toggle Grayscale
+                        </button>
+                    </form>
+                </center>
+            </td>
+            <td>
+                <center>
+                    <form id="Form5">
+                        <input id="resolution_status" name="status" type="hidden" value="false"></input>
+                        <button type="button" id="resolution" class="indigo waves-effect waves-light btn" value="null">
+                            Toggle
+                            Resolution
+                        </button>
+                    </form>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                    <form id="Form6">
+                        <input id="focus_status" name="status" type="hidden" value="false"></input>
+                        <button type="button" id="autofocus" class="indigo waves-effect waves-light btn" value="null">
+                            Toggle Autofocus
+                        </button>
+                    </form>
+                </center>
+            </td>
+            <td>
+                <center>
+                    <form id="Form7">
+                        <input id="focus_value" name="value" type="hidden" value="0.5"></input>
+                        <button type="button" id="set_focus" class="indigo waves-effect waves-light btn" value="null">
+                            Reset Focus
+                        </button>
+                    </form>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                    <form id="Form8">
+                        <input id="focus_up" name="direction" type="hidden" value="1"></input>
+                        <button type="button" id="focus_pos" class="indigo waves-effect waves-light btn" value="null">
+                            Increase Focus
+                        </button>
+                    </form>
+                </center>
+            </td>
+            <td>
+                <center>
+                    <form id="Form9">
+                        <input id="focus_down" name="direction" type="hidden" value="-1"></input>
+                        <button type="button" id="focus_neg" class="indigo waves-effect waves-light btn" value="null">
+                            Decrease Focus
+                        </button>
+                    </form>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                    <form id="Form3">
+		                <input id="light_status" name="status" type="hidden" value="false"></input>
+		                <button type="button" id="light" class="indigo waves-effect waves-light btn" value="null">Toggle Light</button>
+	                </form>
+                </center>
+            </td>
+        </tr>
+    </table>
+    <div id="slider"></div>
     <form id="Form">
-	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
-	    <button type=button id="snapshot" class="indigo waves-effect waves-light btn" value="null">Take Snapshot</button>
+        <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
+        <button type=button id="snapshot" class="indigo waves-effect waves-light btn" value="null">Take Snapshot
+        </button>
     </form>
     <form id="Form2">
-	    <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
-	    <input id="cap_status" name="status" type="hidden" value="false"></input>
-	    <button type=button id="video_capture" class="indigo waves-effect waves-light btn" value="null"><span>Start Capture</span></button>
+        <input name="filename" style="width: 50%" type="text" placeholder="Enter Filename Here..."></input>
+        <input id="cap_status" name="status" type="hidden" value="false"></input>
+        <button type=button id="video_capture" class="indigo waves-effect waves-light btn" value="null"><span>Start Capture</span>
+        </button>
     </form>
-	    <p id="ReturnText"></p>
-	  <table id="MediaTable" class=pictures>
-	    <tr>
-		    <td>Date</td>
-		    <td>File Name</td>
-	    </tr>
-	    {% for entry in pictures %}
-	    <tr>
-		    <td>{{ entry.date }} </td>
-		    <td><a href="/media/{{ entry.fileName }}" target="_blank">{{ entry.fileName }}</a></td>
-	    </tr>
-	    {% else %}
-	    <tr>
-	    <td>No pictures yet
-	    </tr>
-	    {% endfor %}
-	  </table>
-	  </div> <!-- container -->
-  </body>
+    <hr>
+    <p id="ReturnText"></p>
+    <table id="MediaTable" class=pictures>
+        <tr>
+            <td>Date</td>
+            <td>File Name</td>
+        </tr>
+        {% for entry in pictures %}
+        <tr>
+            <td>{{ entry.date }}</td>
+            <td><a href="/media/{{ entry.fileName }}" target="_blank">{{ entry.fileName }}</a></td>
+        </tr>
+        {% else %}
+        <tr>
+            <td>No pictures yet
+        </tr>
+        {% endfor %}
+    </table>
+</div> <!-- container -->
+</body>
 
-	<script src="/static/js/index.js"></script>
-
+<script src="/static/js/index.js"></script>
 </html>
