@@ -13,6 +13,9 @@ import configparser
 from camera_usb import Camera
 from camera_pi_cv import Camera as PiCamera
 
+# Light control
+from led_neopixel import Led
+
 app = Flask(__name__)
 
 # Load settings from config file
@@ -23,9 +26,21 @@ try:
 except Exception as e:
     CAMERA = "default"
 try:
+    LIGHT = config['SETTINGS']['light']
+except:
+    LIGHT = "False"
+try:
     MASTERKEY = config['KEYS']['userkey']
 except Exception as e:
     MASTERKEY = 'developmentkey'
+
+led = 0 # Holds our led control object
+if LIGHT == "True" or LIGHT == "true":
+    try:
+        NUMLIGHTS = config['SETTINGS']['numlights']
+    except:
+        NUMLIGHTS = 1
+    led = Led(NUMLIGHTS)
 
 # Database configuration
 DATABASE = './media/media.db'
@@ -298,9 +313,12 @@ def reboot():
 @app.route('/slidervalue', methods=['GET'])
 def slide():
     value = request.args.get('value')
-    # TODO: Change the light level
-    print("Light: ", value)
-    return str(400)
+    if LIGHT == "True" or LIGHT == "true":
+        led.set_brightness(value)
+        print("Light: ", value)
+        return str(200)
+    else:
+        return Response('Changing brightness not supported', status=403)
 
 ## Light Route
 #
@@ -308,13 +326,16 @@ def slide():
 @app.route('/light', methods=['GET'])
 def light():
     status = request.args.get('status')
-    if status == 'true' or status == 'True':
-        print("Light: ON")
-        # TODO: turn light on
-    if status == 'false' or status == 'False':
-        print("Light: OFF")
-        # TODO: turn light off
-    return str(400)
+    if LIGHT == "True" or LIGHT == "true":
+        if status == 'true' or status == 'True':
+            print("Light: ON")
+            led.power_led(status)
+        if status == 'false' or status == 'False':
+            print("Light: OFF")
+            led.power_led(status)
+        return str(200)
+    else:
+        return Response('Changing light not supported', status=403)
 
 ## Database Editor Route
 #
