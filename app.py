@@ -37,7 +37,7 @@ except Exception as e:
 led = 0 # Holds our led control object
 if LIGHT == "True" or LIGHT == "true":
     try:
-        NUMLIGHTS = config['SETTINGS']['numlights']
+        NUMLIGHTS = int(config['SETTINGS']['numlights'])
     except:
         NUMLIGHTS = 1
     led = Led(NUMLIGHTS)
@@ -312,10 +312,9 @@ def reboot():
 # This is mainly listening to a slider on the webpage and shouldn't really be used by other things
 @app.route('/slidervalue', methods=['GET'])
 def slide():
-    value = request.args.get('value')
+    value = int(request.args.get('value'))
     if LIGHT == "True" or LIGHT == "true":
         led.set_brightness(value)
-        print("Light: ", value)
         return str(200)
     else:
         return Response('Changing brightness not supported', status=403)
@@ -328,10 +327,8 @@ def light():
     status = request.args.get('status')
     if LIGHT == "True" or LIGHT == "true":
         if status == 'true' or status == 'True':
-            print("Light: ON")
             led.power_led(status)
         if status == 'false' or status == 'False':
-            print("Light: OFF")
             led.power_led(status)
         return str(200)
     else:

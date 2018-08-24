@@ -44,9 +44,9 @@ class Led(object):
     # @param status True or False if we want the neopixel on
     def power_led(self, status):
         if status == "True" or status == "true":
-            Led.set_color(Led.White)
-        elif status == "False" or status == "False":
-            Led.set_color(Led.Off)
+            Led.set_color(self, Led.White)
+        elif status == "False" or status == "false":
+            Led.set_color(self, Led.Off)
 
     ## Shows blue light
     #
@@ -54,9 +54,9 @@ class Led(object):
     # @param status True or False if we want blue light
     def show_blue(self, status):
         if status == "True" or status == "true":
-            Led.set_color(Led.Blue)
-        elif status == "False" or status == "False":
-            Led.set_color(Led.White)
+            Led.set_color(self, Led.Blue)
+        elif status == "False" or status == "false":
+            Led.set_color(self, Led.White)
 
     ## Sets brightness of neopixels
     #

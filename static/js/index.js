@@ -1,5 +1,5 @@
 capture_status = true;
-light_status = false;
+light_status = true;
 gray_status = true;
 resolution_status = true;
 focus_status = true;
@@ -88,7 +88,7 @@ $('#snapshot').on('click touch', function() {
 });
 
 // Sends value of the light button back to flask server
-$('#light').click(function() {
+$('#light').on('click touch', (function() {
     light_status = !light_status;
 	$('#light_status').val(light_status);      // Put our state into the html
 	url_params = $("#Form3").serializeArray(); // Grab the changes we make to the html
