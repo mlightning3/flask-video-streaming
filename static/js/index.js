@@ -121,7 +121,7 @@ var valueOfSlider;
 $( "#slider" ).slider({
     change: function(){
         valueOfSlider = $( this ).slider( "value" );
-        $.getJSON('/slidervalue', {
+        $.getJSON('/set_brightness', {
             value:valueOfSlider
         });
     }
