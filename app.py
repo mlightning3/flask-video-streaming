@@ -333,6 +333,18 @@ def light():
     else:
         return Response('Changing light not supported', status=403)
 
+## Light Color Route
+#
+# Changes the color of the light
+@app.route('/set_color', methods=['GET'])
+def set_color():
+    value = request.args.get('value')
+    if LIGHT == "True" or LIGHT == "true":
+        led.set_color(led.build_color(value))
+        return str(200)
+    else:
+        return Response('Changing color not supported', status=403)
+
 ## Database Editor Route
 #
 # Way to edit database from web browser

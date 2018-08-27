@@ -19,6 +19,8 @@ class Led(object):
     Off = Color(0, 0, 0)
     # Things that will be changed during use
     brightness = 255
+    color = White
+    prev_color = White
 
     ## Builds an Led object
     #
@@ -34,6 +36,8 @@ class Led(object):
     # This will go through all the neopixels and change their color
     # @param color A Color object describing the color we want
     def set_color(self, color):
+        Led.prev_color = Led.color
+        Led.color = color
         for i in range(Led.LED_COUNT):
             Led.LED_STRIP.setPixelColor(i, color)
             Led.LED_STRIP.show()
@@ -43,20 +47,26 @@ class Led(object):
     # Changes the color between white and off
     # @param status True or False if we want the neopixel on
     def power_led(self, status):
+        tempcolor = Led.prev_color
         if status == "True" or status == "true":
-            Led.set_color(self, Led.White)
+            if tempcolor == Led.Off:
+                tempcolor = Led.White
         elif status == "False" or status == "false":
-            Led.set_color(self, Led.Off)
+            tempcolor = Led.Off
+        Led.set_color(self, tempcolor)
 
     ## Shows blue light
     #
     # Changes between blue and white light
     # @param status True or False if we want blue light
     def show_blue(self, status):
-        if status == "True" or status == "true":
-            Led.set_color(self, Led.Blue)
-        elif status == "False" or status == "false":
-            Led.set_color(self, Led.White)
+        tempcolor = Led.Blue
+        if status == "False" or status == "false":
+            if Led.prev_color == Led.Off:
+                tempcolor = Led.White
+            else:
+                tempcolor = Led.prev_color
+        Led.set_color(self, tempcolor)
 
     ## Sets brightness of neopixels
     #
@@ -67,3 +77,15 @@ class Led(object):
             Led.brightness = value
             Led.LED_STRIP.setBrightness(Led.brightness)
             Led.LED_STRIP.show()
+
+    ## Builds a Color for use with neopixels
+    #
+    # Builds a Color based on the hex values encoded in a string of at least length 6
+    # An example: FFFFFF would make a Color that is bright white
+    # A string that is too short will give a Color of black
+    # @param hexstring A string with the hexcodes for a color
+    def build_color(self, hexstring):
+        tempcolor = Led.Off
+        if len(hexstring) >= 6:
+            tempcolor = Color(int(hexstring[0:2], 16), int(hexstring[2:4], 16), int(hexstring[4:6], 16))
+        return tempcolor
