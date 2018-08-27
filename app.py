@@ -306,10 +306,9 @@ def reboot():
         print('Invalid key')
         return Response('Invalid key', status=401)
 
-## Slider Value Route
+## Brightness Value Route
 #
 # Changes the brightness of the light on the camera
-# This is mainly listening to a slider on the webpage and shouldn't really be used by other things
 @app.route('/set_brightness', methods=['GET'])
 def slide():
     value = int(request.args.get('value'))
