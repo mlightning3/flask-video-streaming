@@ -83,9 +83,9 @@ class Led(object):
     # Builds a Color based on the hex values encoded in a string of at least length 6
     # An example: FFFFFF would make a Color that is bright white
     # A string that is too short will give a Color of black
-    # @param hexstring A string with the hexcodes for a color
+    # @param hexstring A string with the hexcodes for a color (format: RRGGBB)
     def build_color(self, hexstring):
         tempcolor = Led.Off
         if len(hexstring) >= 6:
-            tempcolor = Color(int(hexstring[0:2], 16), int(hexstring[2:4], 16), int(hexstring[4:6], 16))
+            tempcolor = Color(int(hexstring[2:4], 16), int(hexstring[0:2], 16), int(hexstring[4:6], 16))
         return tempcolor
