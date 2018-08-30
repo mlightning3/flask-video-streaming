@@ -365,7 +365,9 @@ def add_to_database():
         date = datetime.date.today()
         g.db.execute('INSERT INTO media (date, fileName) VALUES (?, ?)', [date, filename])
         g.db.commit()
-    return str(200)
+        return str(200)
+    else:
+        return Response('Unable to find ' + filename, status=404)
 
 ## Remove From Database Route
 #
@@ -379,7 +381,9 @@ def remove_from_database():
         g.db.execute('DELETE FROM media WHERE fileName=?', [filename])
         g.db.commit()
         os.remove('media/' + filename)
-    return str(200)
+        return str(200)
+    else:
+        return Response('Unable to find ' + filename, status=404)
 
 ## New Database Route
 #
