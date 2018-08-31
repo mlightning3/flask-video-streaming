@@ -148,9 +148,15 @@ class Camera(object):
             rawImage = PiRGBArray(camera, size=(320,240))
             for frame in camera.capture_continuous(rawImage, format="bgr", use_video_port=True):
                 # store frame
-                cls.frame = frame.array
+                image = frame.array
+                tosave = image # keep a copy of the unedited image for saving video
+                if (cls.low_resolution == True):
+                    image = cv2.resize(image, None, fx=.5, fy=.5, interpolation=cv2.INTER_AREA)  # Resizes the image
+                if (cls.grayscale == True):
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                cls.frame = image
                 if cls.status == True:
-                    cls.buff.put(frame.array)
+                    cls.buff.put(tosave)
                     fcount = fcount + 1
                 elif cls.status == False and cls.prev_status == True:
                     temp = threading.Thread(target=cls._watcher, args=(fcount, cls.totaltime, cls.buff))
