@@ -9,13 +9,6 @@ import os
 from contextlib import closing
 import configparser
 
-# USB Camera Module, requires cv2
-from camera_usb import Camera
-from camera_pi_cv import Camera as PiCamera
-
-# Light control
-from led_neopixel import Led
-
 app = Flask(__name__)
 
 # Load settings from config file
@@ -34,13 +27,27 @@ try:
 except Exception as e:
     MASTERKEY = 'developmentkey'
 
-led = 0 # Holds our led control object
+led = None # Holds our led control object
 if LIGHT == "True" or LIGHT == "true":
+    # Light control
+    from led_neopixel import Led
+
     try:
         NUMLIGHTS = int(config['SETTINGS']['numlights'])
     except:
         NUMLIGHTS = 1
     led = Led(NUMLIGHTS)
+
+cam = None
+# Set up our camera based on what was given in config file
+if CAMERA == "Pi" or CAMERA == "PiCamera":
+    from camera_pi_cv import Camera
+    cam = Camera()
+else:
+    # USB Camera Module, requires cv2
+    from camera_usb import Camera
+    cam = Camera()
+    cam.set_cameratype(CAMERA)  # Set up camera passing along camera information from config
 
 # Database configuration
 DATABASE = './media/media.db'
@@ -106,13 +113,6 @@ def gen(camera):
         frame = camera.get_frame()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-# Set up our camera based on what was given in config file
-if CAMERA == "Pi" or CAMERA == "PiCamera":
-    cam = PiCamera()
-else:
-    cam = Camera()
-    cam.set_cameratype(CAMERA) # Set up camera passing along camera information from config
 
 ## Video Feed Route
 #
