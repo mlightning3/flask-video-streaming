@@ -5,3 +5,4 @@ Werkzeug>=0.9.6
 itsdangerous>=0.24
 picamera>=1.8
 cv2>=3.0.0
+_rpi_ws281x>=1.0
