@@ -311,7 +311,7 @@ def reboot():
 # Changes the brightness of the light on the camera
 @app.route('/set_brightness', methods=['GET'])
 def slide():
-    value = int(request.args.get('value'))
+    value = int(float(request.args.get('value')))
     if LIGHT == "True" or LIGHT == "true":
         led.set_brightness(value)
         return str(200)
