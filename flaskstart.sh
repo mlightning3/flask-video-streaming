@@ -8,7 +8,4 @@
 #
 # Copyright University of Michigan 2018
 
-source ~/.profile
-workon cv3
-cd ~/projects/umich/flask-video-streaming
-python app.py
+sudo ./app.py

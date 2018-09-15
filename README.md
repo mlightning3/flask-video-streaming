@@ -38,10 +38,8 @@ Installing and Setup
 ====================
 Use Python3 and pip3 if your system has multiple versions of Python installed.
 
-There are two ways of installing and running the server, the first and easier way
-is to use the handy script flaskstart.sh, the second is all done manually. It is
-reconmended that for either method (but required by the script) that you use a
-virtual enrivonment to allow for specific versions of libraries to be used.
+There are two ways of running the server, the first and easier way
+is to use the handy script flaskstart.sh, the second is all done manually.
 
 There is also a configuration file that should be created before doing either
 method of setting up and running the server. This file is used to give the server
@@ -59,42 +57,29 @@ Flask  >= 0.10.1
 OpenCV >= 3.0.0
 ```
 
-### Script Method
-
-To use the script we first are assuming you have a Linux enviroment (actual
-Linux or WSL) and we need to make sure that we have a virtual environment set up
-to use (this will also be done with a script in the future).
-Install the python virtual environment manger like so:
+Using pip, we should grab all the dependencies we need when we get Flask and a
+couple of other needed things:
 
 ```
-$ pip install virtualenv virtualenvwrapper
-```
-
-Next we need to add some helper things to our ~/.profile file. So open that
-with your favorite text editor and add the following lines to the bottom of it:
-
-```
-export WORKON_HOME=$HOME/.virtualenvs
-source /usr/local/bin/virtualenvwrapper.sh
-```
-
-Now we need to set up our virtual environment, and install all the needed
-dependicies of the server. Currently, the script is looking for an
-environment named cv3, though this too will be changed in the future so
-that you can give the script the name of the environment you wish to use.
-Enter the following commands:
-
-```
-$ source ~/.profile
-$ mkvirtualenv cv3 -p python3
 $ pip install Flask numpy
 ```
 
-You are also going to need OpenCv installed with it being at least version
-3.3.0. Instructions on a way to compile that will come later.
+If you are going to run this on a Raspberry Pi, you may need to compile OpenCV
+on your own. Also should you want to use neopixels for light, checkout
+[rpi_281x](https://github.com/jgarff/rpi_ws281x) and compile that too.
 
-Once you have all of that done, you are now ready to use the script. As long
-as you make sure the script is executable, you can run the script from
+Then either clone this git repository, or grab a zip from the release folder:
+
+```
+$ git clone https://github.com/mlightning3/flask-video-streaming
+```
+
+### Script Method
+
+To use the script we are assuming you have a Linux enviroment (actual
+Linux or WSL).
+
+As long as you make sure the script is executable, you can run the script from
 anywhere. Run the script anytime you want to run the server with:
 
 ```
@@ -106,26 +91,16 @@ Now follow up with first time setup.
 
 ### Manual Method
 
-OpenCV can be installed a couple of different ways, just make sure you have a
-version that will fit the requirements. (Instructions on building OpenCV will
-be added at a later point).
-Using pip, we should grab all the dependencies we need when we get Flask and a
-couple of other needed things:
-
-```
-$ pip install Flask numpy
-```
-
-Then clone or download the server:
-
-```
-$ git clone https://github.com/mlightning3/flask-video-streaming
-```
-
 Now connect a camera to the computer, and run:
 
 ```
-$ python app.py
+$ ./app.py
+```
+
+If you are using neopixels attached to a Raspberry Pi, run it like this instead:
+
+```
+$ sudo ./app.py
 ```
 
 Now follow up with first time setup.
@@ -159,3 +134,5 @@ All rights reserved.
 
 Based on Miguel Grinberg's [video streaming with Flask](http://blog.miguelgrinberg.com/post/video-streaming-with-flask) 2014 under the MIT license.
 [Link to Miguel's Github repo](https://github.com/miguelgrinberg/flask-video-streaming)
+
+Uses [rpi_281x](https://github.com/jgarff/rpi_ws281x) for neopixel control. Copyright 2014, jgarff under MIT License.
