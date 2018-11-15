@@ -27,16 +27,24 @@ try:
 except Exception as e:
     MASTERKEY = 'developmentkey'
 
+controller = None # Holds external controller such as Trinket
 led = None # Holds our led control object
 if LIGHT == "True" or LIGHT == "true":
-    # Light control
-    from led_neopixel import Led
+    LIGHT_TYPE = config['SETTINGS']['lighttype']
 
-    try:
-        NUMLIGHTS = int(config['SETTINGS']['numlights'])
-    except:
-        NUMLIGHTS = 1
-    led = Led(NUMLIGHTS)
+    if LIGHT_TYPE == "neopixel":
+        # Light control
+        from led_neopixel import Led
+
+        try:
+            NUMLIGHTS = int(config['SETTINGS']['numlights'])
+        except:
+            NUMLIGHTS = 1
+        led = Led(NUMLIGHTS)
+    elif LIGHT_TYPE == "trinket":
+        from trinket import *
+        controller = Trinket()
+        led = Led(controller)
 
 cam = None
 # Set up our camera based on what was given in config file
