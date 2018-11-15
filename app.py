@@ -353,6 +353,16 @@ def set_color():
     else:
         return Response('Changing color not supported', status=403)
 
+## Retreive data from external controller
+#
+# Gives raw data off of external controller
+@app.route('/get_controller_data', methods=['GET'])
+def get_controller_data():
+    if controller is not None:
+        return str(controller.get_data())
+    else:
+        return Response('Controller unavailable', status=403)
+
 ## Database Editor Route
 #
 # Way to edit database from web browser
