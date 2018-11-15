@@ -56,9 +56,10 @@ class Trinket(object):
         while cls.stop is not True:
             cls.data = cls.ser.readline()
             if cls.message is not None:
-                cls.write(cls.message.encode('latin-1'))
+                cls.ser.write(cls.message.encode('latin-1'))
                 cls.message = None
         cls.ser.close()
+        cls.trinket_thread = None
 
 class Led(object):
     trinket = None
