@@ -22,6 +22,8 @@ class Trinket(object):
     # @param baud The rate of data transfer as an int (default is 9600)
     def __init__(self, tty='/dev/ttyUSB0', baud=9600):
         try:
+            Trinket.tty = tty
+            Trinket.baud = baud
             Trinket.ser = serial.Serial(tty, baud, timeout=1)  # This defaults to /dev/ttyUSB0 at 9600 baud if nothing was passed in
         except ValueError as ve:  # Some value we passed in was bad
             print(ve)

@@ -43,7 +43,15 @@ if LIGHT == "True" or LIGHT == "true":
         led = Led(NUMLIGHTS)
     elif LIGHT_TYPE == "trinket":
         from trinket import *
-        controller = Trinket()
+        try:
+            TTY = config['SETTINGS']['tty']
+            try:
+                BAUD = config['SETTINGS']['baud']
+                controller = Trinket(TTY, BAUD)
+            except:
+                controller = Trinket(TTY)
+        except:
+            controller = Trinket()
         led = Led(controller)
 
 cam = None
