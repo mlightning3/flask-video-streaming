@@ -11,7 +11,7 @@ class Trinket(object):
     baud = 9600
     ser = None
     trinket_thread = None
-    data = 0
+    data = b'0'
     message = None
     stop = False
 
@@ -38,7 +38,7 @@ class Trinket(object):
     ## Gets latest raw data from Trinket
     #
     def get_data(self):
-        return Trinket.data
+        return Trinket.data.decode('latin-1')
 
     ## Sends string to Trinket
     #
@@ -56,7 +56,8 @@ class Trinket(object):
     @classmethod
     def _thread(cls):
         while cls.stop is not True:
-            cls.data = cls.ser.readline()
+            if cls.ser.in_waiting > 0:
+                cls.data = cls.ser.readline()
             if cls.message is not None:
                 cls.ser.write(cls.message.encode('latin-1'))
                 cls.message = None
