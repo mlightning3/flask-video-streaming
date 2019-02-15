@@ -43,16 +43,16 @@ if LIGHT == "True" or LIGHT == "true":
         led = Led(NUMLIGHTS)
     elif LIGHT_TYPE == "trinket":
         from trinket import *
+        controller = 1
         try:
             TTY = config['SETTINGS']['tty']
             try:
                 BAUD = config['SETTINGS']['baud']
-                controller = Trinket(TTY, BAUD)
+                led = Led(Trinket(TTY, BAUD))
             except:
-                controller = Trinket(TTY)
+                led = Led(Trinket(TTY))
         except:
-            controller = Trinket()
-        led = Led(controller)
+            led = Led(Trinket())
 
 cam = None
 # Set up our camera based on what was given in config file
@@ -361,13 +361,13 @@ def set_color():
     else:
         return Response('Changing color not supported', status=403)
 
-## Retreive data from external controller
+## Retrieve data from external controller
 #
 # Gives raw data off of external controller
 @app.route('/get_controller_data', methods=['GET'])
 def get_controller_data():
     if controller is not None:
-        return str(controller.get_data())
+        return str(led.trinket.get_data())
     else:
         return Response('Controller unavailable', status=403)
 

@@ -51,7 +51,7 @@ class Trinket(object):
     def close(self):
         Trinket.stop = True
 
-    ## Handles reading and writign to trinket
+    ## Handles reading and writing to trinket
     #
     @classmethod
     def _thread(cls):
@@ -66,7 +66,7 @@ class Trinket(object):
 
 class Led(object):
     trinket = None
-    brightness = 255
+    brightness = 'FF'
     White = 'FFFFFF'
     Off = '000000'
     color = 'FFFFFF'
