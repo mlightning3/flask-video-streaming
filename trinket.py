@@ -1,19 +1,44 @@
-import serial
+import serial, queue
 import threading
+from multiprocessing import Process
 
 ##
 # This handles talking to the trinket (or similar device connected over serial), providing way to read and write to it
 # Also provides a Led class for drop-in replacement of Led controllers, but talks to Trinket instead
 ##
 
+def serial_worker(serialCon, toTrinket, fromTrinket):
+    if serialCon.is_open():
+        stop = False
+        while stop is not True:
+            if serialCon.in_waiting > 0:
+                fromTrinket.put(serialCon.readline()) # Add message from Trinket to queue to be read by main process
+            if toTrinket.empty() is False:
+                message = None
+                try:
+                    message = toTrinket.get_nowait() # Read message from main process
+                except queue.Empty:
+                    message = None
+                if message is not None:
+                    if message == 'stop':
+                        stop = True
+                    else:
+                        serialCon.write(message.encode('latin-1'))
+                    message = None
+        serialCon.close()
+
+
 class Trinket(object):
     tty = '/dev/ttyUSB0'
     baud = 9600
     ser = None
-    trinket_thread = None
-    data = b'0'
-    message = None
-    stop = False
+    trinket_process = None
+    toTinket = None
+    fromTrinket = None
+#    trinket_thread = None
+#    data = b'0'
+#    message = None
+#    stop = False
 
 
     ## Creates a Trinket object
@@ -31,38 +56,55 @@ class Trinket(object):
         except serial.SerialException as se:  # Unable to find tty device
             print(se)
             exit(2)
-        if Trinket.trinket_thread is None:
-            Trinket.trinket_thread = threading.Thread(target=self._thread)
-            Trinket.trinket_thread.start()
+        Trinket.add_process(self)
+#        if Trinket.trinket_thread is None:
+#            Trinket.trinket_thread = threading.Thread(target=self._thread)
+#            Trinket.trinket_thread.start()
 
     ## Gets latest raw data from Trinket
     #
     def get_data(self):
-        return Trinket.data.decode('latin-1')
+        message = ''
+        try:
+            message = Trinket.fromTrinket.get_nowait().decode('latin-1')
+        except queue.Empty:
+            message = ''
+        return message
 
     ## Sends string to Trinket
     #
     # @param data String we wish to send to Trinket
     def send_message(self, data):
-        Trinket.message = str(data)
+        Trinket.toTinket.put(str(data))
 
     ## Closes connection to Trinket
     #
     def close(self):
-        Trinket.stop = True
+        Trinket.toTinket.put('stop')
+        Trinket.trinket_process.join()
+        Trinket.trinket_process = None
 
-    ## Handles reading and writing to trinket
+    ## Builds new worker process
     #
-    @classmethod
-    def _thread(cls):
-        while cls.stop is not True:
-            if cls.ser.in_waiting > 0:
-                cls.data = cls.ser.readline()
-            if cls.message is not None:
-                cls.ser.write(cls.message.encode('latin-1'))
-                cls.message = None
-        cls.ser.close()
-        cls.trinket_thread = None
+    def add_process(self):
+        if Trinket.trinket_process is None:
+            toTrinket = queue.Queue()
+            fromTrinket = queue.Queue()
+            Trinket.trinket_process = Process(target=serial_worker, args=(Trinket.ser, Trinket.toTinket, Trinket.fromTrinket))
+
+
+#    ## Handles reading and writing to trinket
+#    #
+#    @classmethod
+#    def _thread(cls):
+#        while cls.stop is not True:
+#            if cls.ser.in_waiting > 0:
+#                cls.data = cls.ser.readline()
+#            if cls.message is not None:
+#                cls.ser.write(cls.message.encode('latin-1'))
+#                cls.message = None
+#        cls.ser.close()
+#        cls.trinket_thread = None
 
 class Led(object):
     trinket = None
