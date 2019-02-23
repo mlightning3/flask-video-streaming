@@ -1,6 +1,6 @@
-import serial, queue
+import serial
 import threading
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 
 ##
 # This handles talking to the trinket (or similar device connected over serial), providing way to read and write to it
@@ -8,7 +8,7 @@ from multiprocessing import Process
 ##
 
 def serial_worker(serialCon, toTrinket, fromTrinket):
-    if serialCon.is_open():
+    if serialCon.is_open:
         stop = False
         while stop is not True:
             if serialCon.in_waiting > 0:
@@ -17,7 +17,7 @@ def serial_worker(serialCon, toTrinket, fromTrinket):
                 message = None
                 try:
                     message = toTrinket.get_nowait() # Read message from main process
-                except queue.Empty:
+                except Queue.Empty:
                     message = None
                 if message is not None:
                     if message == 'stop':
@@ -67,7 +67,7 @@ class Trinket(object):
         message = ''
         try:
             message = Trinket.fromTrinket.get_nowait().decode('latin-1')
-        except queue.Empty:
+        except Queue.Empty:
             message = ''
         return message
 
@@ -88,9 +88,10 @@ class Trinket(object):
     #
     def add_process(self):
         if Trinket.trinket_process is None:
-            toTrinket = queue.Queue()
-            fromTrinket = queue.Queue()
-            Trinket.trinket_process = Process(target=serial_worker, args=(Trinket.ser, Trinket.toTinket, Trinket.fromTrinket))
+            Trinket.toTrinket = Queue()
+            Trinket.fromTrinket = Queue()
+            Trinket.trinket_process = Process(target=serial_worker, args=(Trinket.ser, Trinket.toTinket, Trinket.fromTrinket,))
+            Trinket.trinket_process.start()
 
 
 #    ## Handles reading and writing to trinket
