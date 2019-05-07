@@ -1,5 +1,4 @@
 import serial
-import threading
 from multiprocessing import Process, Queue
 from queue import Empty
 
@@ -30,27 +29,23 @@ def serial_worker(serialCon, toTrinket, fromTrinket):
 
 
 class Trinket(object):
-    tty = '/dev/ttyUSB0'
+    tty = '/dev/serial0'
     baud = 9600
     ser = None
     trinket_process = None
-    toTinket = None
-    fromTrinket = None
-#    trinket_thread = None
-#    data = b'0'
-#    message = None
-#    stop = False
+    toTinket = Queue()
+    fromTrinket = Queue()
 
 
     ## Creates a Trinket object
     #
-    # @param tty A string to the tty device we should listen on (default is '/dev/ttyUSB0')
+    # @param tty A string to the tty device we should listen on (default is '/dev/serial0')
     # @param baud The rate of data transfer as an int (default is 9600)
-    def __init__(self, tty='/dev/ttyUSB0', baud=9600):
+    def __init__(self, tty='/dev/serial0', baud=9600):
         try:
             Trinket.tty = tty
             Trinket.baud = baud
-            Trinket.ser = serial.Serial(tty, baud, timeout=1)  # This defaults to /dev/ttyUSB0 at 9600 baud if nothing was passed in
+            Trinket.ser = serial.Serial(self.tty, self.baud, timeout=1)  # This defaults to /dev/serial0 at 9600 baud if nothing was passed in
         except ValueError as ve:  # Some value we passed in was bad
             print(ve)
             exit(2)
@@ -58,9 +53,6 @@ class Trinket(object):
             print(se)
             exit(2)
         Trinket.add_process(self)
-#        if Trinket.trinket_thread is None:
-#            Trinket.trinket_thread = threading.Thread(target=self._thread)
-#            Trinket.trinket_thread.start()
 
     ## Gets latest raw data from Trinket
     #
@@ -94,19 +86,6 @@ class Trinket(object):
             Trinket.trinket_process = Process(target=serial_worker, args=(Trinket.ser, Trinket.toTinket, Trinket.fromTrinket,))
             Trinket.trinket_process.start()
 
-
-#    ## Handles reading and writing to trinket
-#    #
-#    @classmethod
-#    def _thread(cls):
-#        while cls.stop is not True:
-#            if cls.ser.in_waiting > 0:
-#                cls.data = cls.ser.readline()
-#            if cls.message is not None:
-#                cls.ser.write(cls.message.encode('latin-1'))
-#                cls.message = None
-#        cls.ser.close()
-#        cls.trinket_thread = None
 
 class Led(object):
     trinket = None
@@ -176,11 +155,21 @@ class Led(object):
     # This won't change the values inside color or brightness, just sends the adjusted colors
     # If the trinket is changed to calculate the proper brightness, this function isn't needed
     def update_color(self):
-        red = int(self.color[:2], 16) * int(self.brightness, 16)
-        green = int(self.color[2:4], 16) * int(self.brightness, 16)
-        blue = int(self.color[4:6], 16) * int(self.brightness, 16)
-        red = hex(red)
-        green = hex(green)
-        blue = hex(blue)
-        message = red[:2] + green[:2] + blue[:2] + self.brightness
+        brightness = int(Led.brightness, 16) / 255
+        red = int(Led.color[:2], 16) * brightness
+        green = int(Led.color[2:4], 16) * brightness
+        blue = int(Led.color[4:6], 16) * brightness
+        red = hex(int(red))
+        green = hex(int(green))
+        blue = hex(int(blue))
+        red = red[2:]
+        if len(red) is 1:
+            red = '0' + red
+        green = green[2:]
+        if len(green) is 1:
+            green = '0' + green
+        blue = blue[2:]
+        if len(blue) is 1:
+            blue = '0' + blue
+        message = red + green + blue + Led.brightness
         Led.trinket.send_message(message)
