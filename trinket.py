@@ -129,7 +129,7 @@ class Led(object):
     def set_color(self, color):
         Led.prev_color = Led.color
         Led.color = color
-        Led.trinket.send_message(color + Led.brightness)
+        Led.update_color(self)
 
     ## Powers on and off the neopixels
     #
@@ -142,7 +142,7 @@ class Led(object):
                 tempcolor = Led.White
         elif status == "False" or status == "false":
             tempcolor = Led.Off
-        Led.trinket.send_message(tempcolor + Led.brightness)
+        Led.update_color(self)
 
     ## Sets brightness of neopixels
     #
@@ -155,7 +155,7 @@ class Led(object):
             if len(tempvalue) is 1:
                 tempvalue = '0' + tempvalue
             Led.brightness = tempvalue
-            Led.trinket.send_message(Led.color + Led.brightness)
+            Led.update_color(self)
 
     ## Builds a Color for use with neopixels (API compatability)
     #
@@ -170,3 +170,17 @@ class Led(object):
         if len(hexstring) >= 6:
             tempcolor = hexstring[:6]
         return tempcolor
+
+    ## Updates the color based on the current brightness
+    #
+    # This won't change the values inside color or brightness, just sends the adjusted colors
+    # If the trinket is changed to calculate the proper brightness, this function isn't needed
+    def update_color(self):
+        red = int(self.color[:2], 16) * int(self.brightness, 16)
+        green = int(self.color[2:4], 16) * int(self.brightness, 16)
+        blue = int(self.color[4:6], 16) * int(self.brightness, 16)
+        red = hex(red)
+        green = hex(green)
+        blue = hex(blue)
+        message = red[:2] + green[:2] + blue[:2] + self.brightness
+        Led.trinket.send_message(message)
