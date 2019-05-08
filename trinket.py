@@ -112,15 +112,17 @@ class Led(object):
 
     ## Powers on and off the neopixels
     #
-    # Changes the color between white and off
+    # Switches the color between Off and the previous color (unless it was also off, which then defaults to white)
     # @param status True or False if we want the neopixel on
     def power_led(self, status):
-        tempcolor = Led.prev_color
         if status == "True" or status == "true":
-            if tempcolor == Led.Off:
-                tempcolor = Led.White
+            if Led.prev_color == Led.Off:
+                Led.color = Led.White
+            else:
+                Led.color = Led.prev_color
         elif status == "False" or status == "false":
-            tempcolor = Led.Off
+            Led.prev_color = Led.color
+            Led.color = Led.Off
         Led.update_color(self)
 
     ## Sets brightness of neopixels
