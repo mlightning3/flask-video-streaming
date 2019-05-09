@@ -13,9 +13,37 @@
 # OpenCV supported Cameras : default
 camera =
 
+# Does the device have a light we want to be able to control?
+# True or False
+light =
+
+# Optional, but required if light is set to true
+# Valid options are neopixel and trinket
+# neopixel has the raspberry pi directly control a string of neopixels
+# trinket means there is an external controller for neopixels and sensors
+lighttype =
+
+# Optional, but required if lighttype is set to neopixel
+# The number of neopixels in the string the raspberry pi controls
+# Defaults to 1
+numlights =
+
+# Optional, used to override default if lighttype is set to trinket
+# Change the serial port connection to use to talk to external controller
+# Defaults to /dev/serial0
+# Examples: /dev/serial0  /dev/TTYUSB0  COM1
+tty =
+
+# Optional, used to override default if lighttype is set to trinket (would also need to set tty then)
+# Change the baud rate to talk over serial to external controller
+# Defaults to 9600
+# Examples: 300, 9600
+baud =
+
 ## Access Settings ##
 
 [KEYS]
 
 # Here we can define a user key that could be used to let only certain people access things on the server
+# Currently used to allow user to reboot or turn off the server if running on a Linux system
 userkey =

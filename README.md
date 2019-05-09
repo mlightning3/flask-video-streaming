@@ -16,22 +16,25 @@ stream the video back to your phone for an inexpensive FPV vehicle.
 * Video Recording
 * Downloading saved pictures and video
 * Adding/Removing pictures and video from listing
-* Controlling camera light
+* Controlling external devices (such as a light)
+* Reading from external devices (such as a sensor)
 
 ### Hardware Requirements
 
 * 1Ghz processor
 * 512Mb RAM
 * ?? Space for all the videos and pictures
+* (Optional but recommended) external controller for LEDs and sensors
 
 Runs on Raspberry Pi Zero W, 3, 3B+ and whatever x86 box you have around. The video
-saving will benifit from having multiple cores and a fast connection to your storage
-medium.
+saving will benefit from having a fast connection to your storage medium. Currently
+having extra cores will only benefit you if you use the external controller for LED
+and sensor reading.
 
-Works with any camera OpenCV can talk to (webcams, PlayStaion Eye, etc.), and
-has support of the Raspberry Pi camera.
+Works with any camera OpenCV can talk to (webcams, PlayStation Eye, etc.), and
+has support of the Raspberry Pi camera (both clones and genuine).
 Higher resolution cameras will require a stronger processor to keep the stream going
-at a resonable rate, though if the camera is supported by OpenCV then you can drop the
+at a reasonable rate, though if the camera is supported by OpenCV then you can drop the
 resolution for weaker hardware.
 
 Installing and Setup
@@ -64,9 +67,18 @@ couple of other needed things:
 $ pip install Flask numpy
 ```
 
+If you are using an external controller, you will also need the serial library:
+
+```
+$ pip install serial
+```
+
 If you are going to run this on a Raspberry Pi, you may need to compile OpenCV
 on your own. Also should you want to use neopixels for light, checkout
 [rpi_281x](https://github.com/jgarff/rpi_ws281x) and compile that too.
+*It is not recommended to have the raspberry pi directly control a neopixel if
+having a constant framerate is important to your application. Instead use an
+external controller such as an Arduino.*
 
 Then either clone this git repository, or grab a zip from the release folder:
 
@@ -76,7 +88,7 @@ $ git clone https://github.com/mlightning3/flask-video-streaming
 
 ### Script Method
 
-To use the script we are assuming you have a Linux enviroment (actual
+To use the script we are assuming you have a Linux environment (actual
 Linux or WSL).
 
 As long as you make sure the script is executable, you can run the script from
@@ -128,7 +140,7 @@ throughly as when just one device is viewing the stream.
 
 Copyright
 =========
-University of Michigan 2017-2018
+University of Michigan 2017-2019
 
 All rights reserved.
 
