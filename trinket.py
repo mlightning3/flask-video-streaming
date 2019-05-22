@@ -24,7 +24,6 @@ def serial_worker(serialCon, toTrinket, fromTrinket):
                         stop = True
                     else:
                         serialCon.write(message.encode('latin-1'))
-                    message = None
         serialCon.close()
 
 
@@ -90,6 +89,7 @@ class Trinket(object):
 class Led(object):
     trinket = None
     brightness = 'FF'
+    prev_brightness = brightness
     White = 'FFFFFF'
     Off = '000000'
     color = 'FFFFFF'
@@ -120,9 +120,15 @@ class Led(object):
                 Led.color = Led.White
             else:
                 Led.color = Led.prev_color
+            if Led.prev_brightness == '00':
+                Led.brightness = 'FF'
+            else:
+                Led.brightness = Led.prev_brightness
         elif status == "False" or status == "false":
             Led.prev_color = Led.color
             Led.color = Led.Off
+            Led.prev_brightness = Led.brightness
+            Led.brightness = '00'
         Led.update_color(self)
 
     ## Sets brightness of neopixels
