@@ -3,6 +3,7 @@
 
 #define LED 5 // This is a 5v output pin on the ItsyBitsy
 #define ANALOG 0
+#define NUM_PIXLES 1 // How many NeoPixels in our string of pixels
 
 int pulsePin = 0;
 volatile int BPM;
@@ -20,12 +21,12 @@ volatile int amp = 0;                   // used to hold amplitude of pulse wavef
 volatile boolean firstBeat = true;        // used to seed rate array so we startup with reasonable BPM
 volatile boolean secondBeat = false;      // used to seed rate array so we startup with reasonable BPM
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(1, LED, NEO_GRBW);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXLES, LED, NEO_GRBW);
 
 void setup() {
   
   pixels.begin();
-  pixels.setBrightness(50);
+  pixels.setBrightness(100);
 
   Serial.begin(9600);
   Serial1.begin(9600); // TX/RX pins on the ItsyBitsy
@@ -36,10 +37,14 @@ void setup() {
 void loop() {
   // We got a message from the Pi
   // Message should be color and brightness information
-  if(Serial.available() >= 8) {
-    String color_str = Serial.readString();
-    color_str = color_str.substring(0, 8); // Cut out anything after 8 characters
-    uint32_t color = strtoul(color_str.c_str(), 8, 16); // Convert color information to send to neopixel
+  if(Serial1.available() >= 8) {
+    uint32_t color = buildColor(Serial1.readString());
+    for(int i = 0; i < pixels.numPixels(); i++) {
+      pixels.setPixelColor(i, color);
+    }
+    pixels.show(); // Update neopixel
+  } else if(Serial.available() >= 8) { // Debug access via USB
+  	uint32_t color = buildColor(Serial.readString());
     for(int i = 0; i < pixels.numPixels(); i++) {
       pixels.setPixelColor(i, color);
     }
@@ -47,12 +52,37 @@ void loop() {
   }
   // Give Pi data
   if(QS == true) {
-    Serial.println(BPM);
     Serial1.println(BPM);
+    Serial.println(BPM);
     QS = false;
   }
 }
 
+/**
+ * Create the value for the color to display from the color string given to us
+ * @param color_str String holding a color value in form RRGGBB (all hex values)
+ * @return Color value for neopixels
+ */
+uint32_t buildColor(String color_str) {
+	color_str = color_str.substring(0, 6); // Cut out alpha bits
+    uint8_t red = strtoul(color_str.substring(0, 2).c_str(), 2, 16);
+    uint8_t green = strtoul(color_str.substring(2, 4).c_str(), 2, 16);
+    uint8_t blue = strtoul(color_str.substring(4).c_str(), 2, 16);
+    uint8_t white = 0;
+    if(red == green && green == blue) {
+    	white = red;
+    	red = 0;
+    	green = 0;
+    	blue = 0;
+    }
+    uint32_t color = pixels.Color(red, green, blue, white);
+    return color;
+}
+
+/**
+ * Set up interrupt for reading heart rate sensor
+ * DON'T TOUCH
+ */
 void interruptSetup() {
   TCCR1A = 0x00;
   TCCR1B = 0x0C;
@@ -61,6 +91,10 @@ void interruptSetup() {
   sei();
 }
 
+/**
+ * Interrupt for heart rate sensor
+ * NO TOUCHY
+ */
 ISR(TIMER1_COMPA_vect){                         // triggered when Timer2 counts to 124
   cli();                                      // disable interrupts while we do this
   Signal = analogRead(pulsePin);              // read the Pulse Sensor
