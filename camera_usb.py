@@ -107,6 +107,14 @@ class Camera(object):
         else:
             return 403
 
+    # Where we get any desired action for an OpenCV action
+    # @param payload The string for the desired payload to do something with
+    # @param args The request string (with payload) for performing actions
+    def opencv(self, payload, args):
+        # TODO: Fill this out with OpenCV things
+        # Until then, just return Not Found to everything
+        return 404
+
     ## Steps the focus in a direction
     #
     # Moves the plane of focus by 0.05 in either a positive or negative direction

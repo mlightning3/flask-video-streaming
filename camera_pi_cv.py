@@ -107,6 +107,14 @@ class Camera(object):
             Camera.low_resolution = False
         return 200
 
+    # Where we get any desired action for an OpenCV action
+    # @param payload The string for the desired payload to do something with
+    # @param args The request string (with payload) for performing actions
+    def opencv(self, payload, args):
+        # TODO: Fill out with OpenCV things
+        # Until then, just return Not Found to everything
+        return 404
+
     # =========================
     # Video writing thread
     #

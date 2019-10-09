@@ -178,6 +178,19 @@ def video_capture():
         return str(200)
     else:
         return Response('Error with recording video', status=result)
+    
+## Generic OpenCV Payload Route
+#
+# Passes along name of desired payload and arguments to camera thread
+@app.route('/opencv', methods=['GET'])
+def opencv_payload():
+    payload = request.args.get('payload')
+    args = request.args # TODO: look up what this should be
+    result = cam.opencv(payload, args)
+    if result == 200:
+        return str(200)
+    else:
+        return Response('Error performing OpenCV command', status=result)
 
 ## Grayscale Toggle Route
 #
