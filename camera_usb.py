@@ -10,6 +10,7 @@ import threading
 import cv2
 import numpy as np
 import queue
+from datetime import datetime
 
 avg = np.repeat(0.0, 100)
 
@@ -109,9 +110,16 @@ class Camera(object):
 
     # Where we get any desired action for an OpenCV action
     # @param payload The string for the desired payload to do something with
-    # @param args The request string (with payload) for performing actions
+    # @param args A dictionary of all the keys and values sent in the query request (anything after the ? in the url like ?status=true&name=pi)
     def opencv(self, payload, args):
-        # TODO: Fill this out with OpenCV things
+        if payload is "snapshot":
+            filename = "default-" + datetime.now().date()
+            if "filename" in args:
+                filename = args.get("filename")
+            self.take_snapshot(filename)
+            return 200
+
+        # TODO: Fill this out with other OpenCV things
         # Until then, just return Not Found to everything
         return 404
 
