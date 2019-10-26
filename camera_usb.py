@@ -5,12 +5,12 @@
 ##
 
 import time
-import io
 import threading
 import cv2
 import numpy as np
 import queue
 from datetime import datetime
+import pytesseract
 
 avg = np.repeat(0.0, 100)
 
@@ -34,6 +34,7 @@ class Camera(object):
     autofocus_changed = False
     manual_focus = 0.5
     manual_focus_changed = False
+    tesseract = False
 
     def initialize(self):
         if Camera.thread is None:
@@ -117,6 +118,17 @@ class Camera(object):
             if "filename" in args:
                 filename = args.get("filename")
             self.take_snapshot(filename)
+            return 200
+
+        if payload is "tesseract":
+            enable = False
+            if "status" in args:
+                enable = args.get("status")
+                if enable is "false" or enable is "False":
+                    enable = True
+                else:
+                    enable = False
+            Camera.tesseract = enable
             return 200
 
         # TODO: Fill this out with other OpenCV things
@@ -214,6 +226,7 @@ class Camera(object):
                 ret, frame = (-1, blank_frame)
             if ret == False:
                 frame = blank_frame
+                tosave = frame
             else:
                 tosave = frame
                 if(cls.low_resolution == True):
@@ -228,7 +241,11 @@ class Camera(object):
                     camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus)
                     camera.set(cv2.CAP_PROP_FOCUS, cls.manual_focus)
                     cls.manual_focus_changed = False
-                #frame = res
+                if cls.tesseract:
+                    temp_img = frame
+
+                    value = pytesseract.image_to_string(temp_img)
+                    cv2.putText(frame, value, (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (255, 255, 255), 2)
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(tosave)
