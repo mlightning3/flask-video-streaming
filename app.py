@@ -182,11 +182,11 @@ def video_capture():
 ## Generic OpenCV Payload Route
 #
 # Passes along name of desired payload and arguments to camera thread
-@app.route('/opencv', methods=['GET'])
-def opencv_payload():
+@app.route('/manual_video', methods=['GET'])
+def manual_video():
     payload = request.args.get('payload')
     args = request.args # TODO: look up what this should be
-    result = cam.opencv(payload, args)
+    result = cam.video_payload(payload, args)
     if result == 200:
         return str(200)
     else:

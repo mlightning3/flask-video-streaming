@@ -12,6 +12,7 @@ import numpy as np
 import queue
 from datetime import datetime
 import pytesseract
+import pyzbar
 
 avg = np.repeat(0.0, 100)
 
@@ -39,6 +40,9 @@ class Camera(object):
     tesseract = False
     tess_frame = None
     tess_text = ""
+    barcode = False
+    bar_frame = None
+    bar_text = ""
 
     def initialize(self):
         if Camera.thread is None:
@@ -116,7 +120,7 @@ class Camera(object):
     # Where we get any desired action for an OpenCV action
     # @param payload The string for the desired payload to do something with
     # @param args A dictionary of all the keys and values sent in the query request (anything after the ? in the url like ?status=true&name=pi)
-    def opencv(self, payload, args):
+    def video_payload(self, payload, args):
         if payload == "snapshot":
             filename = "default-" + str(datetime.now()) # May want to pick something better than date, this will be wrong quickly (Pi has no RTC backup)
             if "filename" in args:
@@ -134,6 +138,18 @@ class Camera(object):
                     enable = False
                 Camera.tesseract = enable
             # if "" in args:    # Other switches for tesseract would go here
+            return 200
+
+        if payload == "barcode":
+            if "status" in args:    # Turn OCR on and off
+                enable = args.get("status")
+                enable = enable.lower()
+                if enable == "false":
+                    enable = True
+                else:
+                    enable = False
+                Camera.barcode = enable
+            # if "" in args:    # Other switches for barcode would go here
             return 200
 
         # TODO: Fill this out with other OpenCV things
@@ -196,7 +212,6 @@ class Camera(object):
         while fbuffer.empty() == False:
             video.write(fbuffer.get())
         video.release()
-        cls.watcher = None
 
     # =========================
     # Tesseract OCR thread
@@ -217,6 +232,28 @@ class Camera(object):
                 cls.tess_text = pytesseract.image_to_string(temp_img)
             time.sleep(.5)
         cls.tess_thread = None
+
+    # =========================
+    # Barcode reading thread
+    #
+    # Currently is only started when there is a request for some barcode reading. Takes whatever frame of the video is
+    # passed to bar_frame and analyzes it. If any special image related editing needs to take place to improve the reading
+    # process, it should be done here to reduce the workload on the main thread.
+    # =========================
+    @classmethod
+    def _barcode_thread(cls):
+        while cls.barcode == True:
+            if cls.bar_frame != None:
+                temp_img = copy.deepcopy(cls.bar_frame)  # This is an expensive operation, but gives us a local copy to work with
+                cls.bar_frame = None
+
+                # Do any special things to image here
+
+                barcodes = pyzbar.decode(temp_img)
+                barcode = barcodes[0]
+                cls.bar_text = barcode.data.decode("utf-8")
+            time.sleep(.5)
+        cls.bar_thread = None
 
     #=========================
     # Video capture thread
@@ -275,6 +312,14 @@ class Camera(object):
                         cls.tess_thread.start()
                     cls.tess_frame = frame
                     cv2.putText(frame, cls.tess_text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (255, 255, 255), 2)
+                if cls.barcode: # If we are doing a barcode thing, give it a frame and put any text it gives on current video feed
+                    if cls.bar_thread == None:
+                        cls.bar_frame = None
+                        cls.bar_text = ""
+                        cls.bar_thread = threading.Thread(target=cls._barcode_thread)
+                        cls.bar_thread.start()
+                    cls.bar_frame = frame
+                    cv2.putText(frame, cls.bar_text, (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (255, 255, 255), 2)
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(tosave)
