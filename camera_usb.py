@@ -5,6 +5,7 @@
 ##
 
 import time
+import copy
 import threading
 import cv2
 import numpy as np
@@ -18,6 +19,7 @@ class Camera(object):
     type = "default" # String defining the camera, so we know what functionality it has
     thread = None  # background thread that reads frames from camera
     watcher = None # background thread that writes vidoes file
+    tess_thread = None # Thread that gets spun up to do tesseract work
     frame = None  # current frame is stored here by background thread
     buff = queue.Queue()
     writers = queue.Queue() # Holds our video writing threads while they work
@@ -35,6 +37,8 @@ class Camera(object):
     manual_focus = 0.5
     manual_focus_changed = False
     tesseract = False
+    tess_frame = None
+    tess_text = ""
 
     def initialize(self):
         if Camera.thread is None:
@@ -113,22 +117,23 @@ class Camera(object):
     # @param payload The string for the desired payload to do something with
     # @param args A dictionary of all the keys and values sent in the query request (anything after the ? in the url like ?status=true&name=pi)
     def opencv(self, payload, args):
-        if payload is "snapshot":
-            filename = "default-" + datetime.now().date()
+        if payload == "snapshot":
+            filename = "default-" + str(datetime.now()) # May want to pick something better than date, this will be wrong quickly (Pi has no RTC backup)
             if "filename" in args:
                 filename = args.get("filename")
             self.take_snapshot(filename)
             return 200
 
-        if payload is "tesseract":
-            enable = False
-            if "status" in args:
+        if payload == "tesseract":
+            if "status" in args:    # Turn OCR on and off
                 enable = args.get("status")
-                if enable is "false" or enable is "False":
+                enable = enable.lower()
+                if enable == "false":
                     enable = True
                 else:
                     enable = False
-            Camera.tesseract = enable
+                Camera.tesseract = enable
+            # if "" in args:    # Other switches for tesseract would go here
             return 200
 
         # TODO: Fill this out with other OpenCV things
@@ -191,6 +196,27 @@ class Camera(object):
         while fbuffer.empty() == False:
             video.write(fbuffer.get())
         video.release()
+        cls.watcher = None
+
+    # =========================
+    # Tesseract OCR thread
+    #
+    # Currently is only started when there is a request for some OCR. Takes whatever frame of the video is passed to
+    # tess_frame and does some OCR on it. If any special image related editing needs to take place to improve the OCR
+    # process, it should be done here to reduce the workload on the main thread.
+    # =========================
+    @classmethod
+    def _tesseract_thread(cls):
+        while cls.tesseract == True:
+            if cls.tess_frame != None:
+                temp_img = copy.deepcopy(cls.tess_frame) # This is an expensive operation, but gives us a local copy to work with
+                cls.tess_frame = None
+
+                # Do any special things to image here
+
+                cls.tess_text = pytesseract.image_to_string(temp_img)
+            time.sleep(.5)
+        cls.tess_thread = None
 
     #=========================
     # Video capture thread
@@ -241,11 +267,14 @@ class Camera(object):
                     camera.set(cv2.CAP_PROP_AUTOFOCUS, cls.autofocus)
                     camera.set(cv2.CAP_PROP_FOCUS, cls.manual_focus)
                     cls.manual_focus_changed = False
-                if cls.tesseract:
-                    temp_img = frame
-
-                    value = pytesseract.image_to_string(temp_img)
-                    cv2.putText(frame, value, (10, 10), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (255, 255, 255), 2)
+                if cls.tesseract: # If we are doing a tesseract thing, give it a frame and put any text it gives on current video feed
+                    if cls.tess_thread == None:
+                        cls.tess_frame = None
+                        cls.tess_text = ""
+                        cls.tess_thread = threading.Thread(target=cls._tesseract_thread)
+                        cls.tess_thread.start()
+                    cls.tess_frame = frame
+                    cv2.putText(frame, cls.tess_text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (255, 255, 255), 2)
             cls.frame = frame
             if cls.status == True:
                 cls.buff.put(tosave)
