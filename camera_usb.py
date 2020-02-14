@@ -13,6 +13,7 @@ import queue
 from datetime import datetime
 import pytesseract
 import pyzbar
+import imutils
 
 avg = np.repeat(0.0, 100)
 
@@ -38,6 +39,7 @@ class Camera(object):
     manual_focus = 0.5
     manual_focus_changed = False
     tesseract = False
+    tesseractLCD = False
     tess_frame = None
     tess_text = ""
     barcode = False
@@ -137,6 +139,14 @@ class Camera(object):
                 else:
                     enable = False
                 Camera.tesseract = enable
+            if "lcd" in args:   # Turn LCD reading on and off
+                lcdEnable = args.get("lcd")
+                lcdEnable = lcdEnable.lower()
+                if lcdEnable == "false":
+                    lcdEnable = True
+                else:
+                    lcdEnable = False
+                Camera.tesseractLCD = lcdEnable
             # if "" in args:    # Other switches for tesseract would go here
             return 200
 
@@ -228,6 +238,32 @@ class Camera(object):
                 cls.tess_frame = None
 
                 # Do any special things to image here
+
+                if cls.tesseractLCD:    # If we want to OCR an LCD
+                    hsvImage = cv2.cvtColor(temp_img, cv2.COLOR_BGR2HSV)
+                    lowerBlack = np.array([0, 0, 0])    # Pure black
+                    upperBlack = np.array([31, 31, 31]) # Mostly black, but some color
+                    mask = cv2.inRange(hsvImage, lowerBlack, upperBlack)
+
+                    maskedImg = cv2.bitwise_and(temp_img, temp_img, mask=mask) # Highlight just black things in image
+                    maskedImg = cv2.GaussianBlur(maskedImg, (13, 13), 0) # Change the (13, 13) to adjust amount of blur
+                    maskedImg = cv2.Canny(maskedImg, 100, 200) # Edge detection
+                    dilate = cv2.dilate(maskedImg, None, iterations=4)
+                    erode = cv2.erode(dilate, None, iterations=4)
+
+                    contours = cv2.findContours(erode.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+                    contours = contours[0] if imutils.is_cv2() else contours[1]
+                    emptyMask = np.ones(temp_img.shape[:2], dtype="uint8") * 255
+
+                    for contour in contours:
+                        if cv2.contourArea(contour) < 600:  # Remove small contour areas
+                            cv2.drawContours(emptyMask, [contour], -1, 0, -1)
+                            continue
+
+                    temp_img = cv2.bitwise_and(erode.copy(), dilate.copy(), mask=emptyMask)
+                    temp_img = cv2.dilate(temp_img, None, iterations=7)
+                    temp_img = cv2.erode(temp_img, None, iterations=7)
+                    ret, temp_img = cv2.threshold(temp_img, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
 
                 cls.tess_text = pytesseract.image_to_string(temp_img)
             time.sleep(.5)
